@@ -470,7 +470,7 @@ function doRegister(){
     })
     .then(function(){
       isRegistering = false; // Allow redirect again
-      suc.innerHTML = 'Account created! \uD83D\uDCE7<br/><strong>Please check your email and click the verification link before signing in.</strong>';
+      suc.innerHTML = 'Account created! \uD83D\uDCE7<br/><strong>Please check your email and click the verification link before signing in.</strong><br/><span style="font-size:0.82rem;color:#888;">If you don\'t see it, please check your <strong>spam or junk folder</strong>.</span>';
       suc.style.display = 'block';
       btn.textContent = 'Check Your Email';
       document.getElementById('regName').value = '';
