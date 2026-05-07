@@ -182,7 +182,7 @@ textarea::placeholder{color:var(--light);font-style:italic;}
 .original{background:var(--ghost);border-radius:13px;padding:14px;margin-bottom:16px;border-left:3px solid var(--sky);}
 .orig-label{font-size:0.68rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--sky);margin-bottom:6px;}
 .orig-text{font-size:0.9rem;color:var(--mid);line-height:1.65;white-space:pre-wrap;word-break:break-word;}
-.thread{margin-bottom:0;padding-bottom:8px;}
+.thread{overflow-y:auto;flex:1;padding-bottom:8px;}
 .thread-msg{margin-bottom:12px;}
 .thread-msg.admin{display:flex;flex-direction:column;align-items:flex-start;}
 .thread-msg.user{display:flex;flex-direction:column;align-items:flex-end;}
@@ -191,27 +191,27 @@ textarea::placeholder{color:var(--light);font-style:italic;}
 .admin .bubble{background:var(--pale);color:var(--ink);border-radius:0 14px 14px 14px;border:1px solid var(--border);}
 .user .bubble{background:var(--grad);color:#fff;border-radius:14px 0 14px 14px;}
 .t-time{font-size:0.67rem;color:var(--light);margin-top:3px;}
-/* Messenger-style reply bar — fixed, floats above keyboard */
+.reply-area{border:none;padding:0;}
+/* Sheet flex layout — reply bar always at bottom, messages scroll above it */
+#threadSheet{display:flex;flex-direction:column;}
+#threadSheet .s-body{
+  flex:1;overflow-y:auto;
+  display:flex;flex-direction:column;
+  padding-bottom:4px;
+}
 #replySection{
-  position:fixed;
-  left:0;right:0;
-  bottom:0;
+  flex-shrink:0;
   background:var(--white);
-  padding:10px 16px 10px;
+  padding:10px 18px 14px;
   border-top:1px solid var(--border);
-  box-shadow:0 -2px 12px rgba(21,101,216,0.08);
-  z-index:300;
-  transition:bottom 0.05s linear;
+  box-shadow:0 -2px 10px rgba(21,101,216,0.06);
 }
 #replySection textarea{
   margin-bottom:8px;
   min-height:44px;
-  max-height:120px;
+  max-height:100px;
   resize:none;
 }
-/* Extra padding so thread messages don't hide behind fixed reply bar */
-.s-body{padding-bottom:140px;}
-.reply-area{border:none;padding:0;}
 .meta-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
 .meta-chip{font-size:0.74rem;color:var(--mid);background:var(--ghost);border:1px solid var(--border);padding:4px 10px;border-radius:20px;}
 </style>
@@ -693,29 +693,6 @@ function openThread(id, data){
   document.getElementById('threadSheet').classList.add('on');
   document.body.style.overflow = 'hidden';
 
-  // Messenger-style: lift reply bar above keyboard using visualViewport API
-  if(window._vpCleanup) window._vpCleanup();
-  function onVPResize(){
-    var vv = window.visualViewport;
-    if(!vv) return;
-    var el = document.getElementById('replySection');
-    if(!el) return;
-    var offsetBottom = window.innerHeight - (vv.offsetTop + vv.height);
-    el.style.bottom = Math.max(0, offsetBottom) + 'px';
-  }
-  if(window.visualViewport){
-    window.visualViewport.addEventListener('resize', onVPResize);
-    window.visualViewport.addEventListener('scroll', onVPResize);
-  }
-  window._vpCleanup = function(){
-    if(window.visualViewport){
-      window.visualViewport.removeEventListener('resize', onVPResize);
-      window.visualViewport.removeEventListener('scroll', onVPResize);
-    }
-    var el = document.getElementById('replySection');
-    if(el) el.style.bottom = '0';
-  };
-
   // Start new listener AFTER sheet is open and old one is gone
   unsubMsg = db.collection('messages')
     .where('confessionId','==',id)
@@ -762,7 +739,6 @@ function closeThread(){
   document.getElementById('threadOverlay').classList.remove('on');
   document.getElementById('threadSheet').classList.remove('on');
   document.body.style.overflow = '';
-  if(window._vpCleanup){ window._vpCleanup(); window._vpCleanup = null; }
   if(unsubMsg){ unsubMsg(); unsubMsg=null; }
   activeConfId = null;
 }
