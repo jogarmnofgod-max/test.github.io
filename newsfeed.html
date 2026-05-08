@@ -286,14 +286,19 @@ textarea::placeholder{color:var(--light);font-style:italic;}
 </div>
 
 <script>
-var fb=firebase.initializeApp({
+var fb;
+try {
+  fb = firebase.initializeApp({
   apiKey:"AIzaSyALcn8hMHIQ3K3qsBVNEC5F5qMvt8-f1ZQ",
   authDomain:"amazing-hope-healing-system.firebaseapp.com",
   projectId:"amazing-hope-healing-system",
   storageBucket:"amazing-hope-healing-system.firebasestorage.app",
   messagingSenderId:"311381790016",
   appId:"1:311381790016:web:1a7c99150b37d4ab687ea5"
-});
+  });
+} catch(e){
+  fb = firebase.app();
+}
 var auth=firebase.auth();
 var db=firebase.firestore();
 
@@ -344,17 +349,23 @@ function switchTab(tab){
 
 // ── LOAD APPROVED FEED ───────────────────────────────
 function loadFeed(){
+  var el=document.getElementById('postList');
+  el.innerHTML='<div class="empty-state"><div class="empty-icon">⏳</div><p>Loading posts…</p></div>';
   db.collection('posts')
-    .where('status','==','approved')
     .onSnapshot(function(snap){
       var posts=[];
-      snap.forEach(function(d){posts.push({id:d.id,d:d.data()});});
+      snap.forEach(function(d){
+        var data=d.data();
+        // Filter: only approved posts
+        if(data.status==='approved'){
+          posts.push({id:d.id,d:data});
+        }
+      });
       posts.sort(function(a,b){
         var ta=a.d.createdAt?a.d.createdAt.toMillis():0;
         var tb=b.d.createdAt?b.d.createdAt.toMillis():0;
         return tb-ta;
       });
-      var el=document.getElementById('postList');
       if(posts.length===0){
         el.innerHTML='<div class="empty-state"><div class="empty-icon">🌟</div><p>No posts yet.<br/>Be the first to share something!</p></div>';
         return;
@@ -364,7 +375,8 @@ function loadFeed(){
         el.appendChild(buildPostCard(item.id,item.d,i));
       });
     },function(err){
-      document.getElementById('postList').innerHTML='<div class="empty-state"><div class="empty-icon">⚠️</div><p>Could not load posts.<br/>'+err.message+'</p></div>';
+      el.innerHTML='<div class="empty-state"><div class="empty-icon">⚠️</div><p>Could not load posts.<br/>'+err.message+'</p></div>';
+      console.error('loadFeed error:',err);
     });
 }
 
@@ -454,25 +466,31 @@ function loadComments(postId){
   el.innerHTML='<p style="font-size:0.8rem;color:var(--light);padding:4px 0;">Loading…</p>';
   db.collection('comments')
     .where('postId','==',postId)
-    .where('parentId','==','')
     .get().then(function(snap){
-      var comments=[];
-      snap.forEach(function(d){comments.push({id:d.id,d:d.data()});});
-      comments.sort(function(a,b){
+      var topComments=[];
+      snap.forEach(function(d){
+        var data=d.data();
+        // Only top-level comments (parentId is '' or missing)
+        if(!data.parentId || data.parentId===''){
+          topComments.push({id:d.id,d:data});
+        }
+      });
+      topComments.sort(function(a,b){
         return (a.d.createdAt?a.d.createdAt.toMillis():0)-(b.d.createdAt?b.d.createdAt.toMillis():0);
       });
       el.innerHTML='';
       var countEl=document.getElementById('comment-count-'+postId);
-      if(countEl) countEl.textContent=snap.size+' comment'+(snap.size===1?'':'s');
-      if(comments.length===0){
+      var total=snap.size;
+      if(countEl) countEl.textContent=total+' comment'+(total===1?'':'s');
+      if(topComments.length===0){
         el.innerHTML='<p style="font-size:0.8rem;color:var(--light);padding:4px 0;">No comments yet. Be the first!</p>';
       } else {
-        comments.forEach(function(item){
+        topComments.forEach(function(item){
           el.appendChild(buildCommentEl(item.id,item.d,postId));
         });
       }
     }).catch(function(e){
-      el.innerHTML='<p style="font-size:0.8rem;color:var(--err);">Could not load comments.</p>';
+      el.innerHTML='<p style="font-size:0.8rem;color:var(--err);">Could not load comments: '+e.message+'</p>';
     });
 }
 
@@ -512,29 +530,34 @@ function buildCommentEl(commentId,d,postId){
   return wrapper;
 }
 
+function buildReplyEl(r){
+  var div=document.createElement('div');
+  div.className='reply-item';
+  div.innerHTML=
+    '<div class="reply-avatar">'+getInitials(r.fullName)+'</div>'+
+    '<div class="comment-bubble">'+
+      '<div class="comment-name">'+r.fullName+'</div>'+
+      '<div class="comment-text">'+r.text+'</div>'+
+      '<div class="comment-time">'+fmtDate(r.createdAt)+'</div>'+
+    '</div>';
+  return div;
+}
+
 function loadReplies(commentId,container){
-  db.collection('comments')
-    .where('parentId','==',commentId)
-    .get().then(function(snap){
-      container.innerHTML='';
-      var replies=[];
-      snap.forEach(function(d){replies.push(d.data());});
-      replies.sort(function(a,b){
-        return (a.createdAt?a.createdAt.toMillis():0)-(b.createdAt?b.createdAt.toMillis():0);
-      });
-      replies.forEach(function(r){
-        var div=document.createElement('div');
-        div.className='reply-item';
-        div.innerHTML=
-          '<div class="reply-avatar">'+getInitials(r.fullName)+'</div>'+
-          '<div class="comment-bubble">'+
-            '<div class="comment-name">'+r.fullName+'</div>'+
-            '<div class="comment-text">'+r.text+'</div>'+
-            '<div class="comment-time">'+fmtDate(r.createdAt)+'</div>'+
-          '</div>';
-        container.appendChild(div);
-      });
+  // Use .where('postId') not .where('parentId') to avoid index requirement
+  // Then filter client-side by parentId
+  db.collection('comments').get().then(function(allSnap){
+    var replies=[];
+    allSnap.forEach(function(d){
+      var data=d.data();
+      if(data.parentId===commentId) replies.push(data);
     });
+    replies.sort(function(a,b){
+      return (a.createdAt?a.createdAt.toMillis():0)-(b.createdAt?b.createdAt.toMillis():0);
+    });
+    container.innerHTML='';
+    replies.forEach(function(r){ container.appendChild(buildReplyEl(r)); });
+  }).catch(function(e){ console.error('loadReplies error:',e); });
 }
 
 function toggleReplyInput(commentId,postId){
@@ -594,10 +617,16 @@ function submitComment(postId){
 // ── MY POSTS ─────────────────────────────────────────
 function loadMyPosts(){
   if(!me)return;
-  db.collection('posts').where('userId','==',me.uid)
+  db.collection('posts')
     .onSnapshot(function(snap){
       var posts=[];
-      snap.forEach(function(d){posts.push({id:d.id,d:d.data()});});
+      snap.forEach(function(d){
+        var data=d.data();
+        // Filter client-side for own posts
+        if(data.userId===me.uid){
+          posts.push({id:d.id,d:data});
+        }
+      });
       posts.sort(function(a,b){
         var ta=a.d.createdAt?a.d.createdAt.toMillis():0;
         var tb=b.d.createdAt?b.d.createdAt.toMillis():0;
