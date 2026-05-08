@@ -357,6 +357,17 @@ textarea:focus,select:focus{border-color:var(--sky);background:var(--white);box-
   </div>
 </div>
 
+<div class="page" id="page-posts">
+  <div class="page-title">Posts <span style="font-size:1rem;font-family:Lato,sans-serif;font-weight:400;">Approval</span></div>
+  <div class="page-sub">Review and approve member posts for the Newsfeed.</div>
+  <div class="filter-strip">
+    <button class="filter-btn active" onclick="filterPosts('pending',this)">⏳ Pending</button>
+    <button class="filter-btn" onclick="filterPosts('approved',this)">✅ Approved</button>
+    <button class="filter-btn" onclick="filterPosts('declined',this)">❌ Declined</button>
+  </div>
+  <div id="postListAdmin"><div class="empty">Loading…</div></div>
+</div>
+
 <!-- BOTTOM NAV -->
 <div class="bottom-nav">
   <div class="nav-tab active" id="nav-dashboard" onclick="showPage('dashboard',this)">
@@ -365,6 +376,10 @@ textarea:focus,select:focus{border-color:var(--sky);background:var(--white);box-
   <div class="nav-tab" id="nav-confessions" onclick="showPage('confessions',this)">
     <span class="n-icon">📜</span>Confessions
     <span class="n-badge" id="pendingBadge">0</span>
+  </div>
+  <div class="nav-tab" id="nav-posts" onclick="showPage('posts',this)">
+    <span class="n-icon">📰</span>Posts
+    <span class="n-badge" id="postBadge" style="display:none;">0</span>
   </div>
   <div class="nav-tab" id="nav-categories" onclick="showPage('categories',this)">
     <span class="n-icon">🏷️</span>Categories
@@ -458,6 +473,7 @@ auth.onAuthStateChanged(function(u){
     if(badge) badge.textContent = roleName.toUpperCase();
     loadAll();
     loadCategories();
+    loadPosts();
   });
 });
 
@@ -847,9 +863,134 @@ function rejectCounseling(){
   });
 }
 
+// ═══════════════════════════════════════════
+// POSTS APPROVAL
+// ═══════════════════════════════════════════
+var allPosts = [];
+var currentPostFilter = 'pending';
+var currentDeclinePostId = null;
+
+function loadPosts(){
+  db.collection('posts').onSnapshot(function(snap){
+    allPosts = [];
+    snap.forEach(function(d){ allPosts.push({id:d.id, d:d.data()}); });
+    allPosts.sort(function(a,b){
+      var ta=a.d.createdAt?a.d.createdAt.toMillis():0;
+      var tb=b.d.createdAt?b.d.createdAt.toMillis():0;
+      return tb-ta;
+    });
+    // Update badge
+    var pending = allPosts.filter(function(p){ return p.d.status==='pending'; }).length;
+    var badge = document.getElementById('postBadge');
+    if(badge){
+      badge.textContent = pending;
+      badge.style.display = pending>0 ? 'inline-block' : 'none';
+    }
+    renderPosts();
+  });
+}
+
+function filterPosts(filter, btn){
+  currentPostFilter = filter;
+  document.querySelectorAll('#page-posts .filter-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  renderPosts();
+}
+
+function renderPosts(){
+  var el = document.getElementById('postListAdmin');
+  if(!el) return;
+  var filtered = allPosts.filter(function(p){ return p.d.status === currentPostFilter; });
+  if(filtered.length===0){
+    el.innerHTML = '<div class="empty">No '+currentPostFilter+' posts.</div>';
+    return;
+  }
+  el.innerHTML = '';
+  filtered.forEach(function(item, i){
+    var d = item.d;
+    var card = document.createElement('div');
+    card.className = 'panel';
+    card.style.marginBottom = '12px';
+    card.style.animationDelay = (i*0.04)+'s';
+    card.innerHTML =
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">'+
+        '<div style="width:36px;height:36px;border-radius:50%;background:var(--grad);color:white;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;flex-shrink:0;">'+getAdminInitials(d.fullName)+'</div>'+
+        '<div>'+
+          '<div style="font-size:0.88rem;font-weight:700;color:var(--ink);">'+d.fullName+'</div>'+
+          '<div style="font-size:0.7rem;color:var(--ink-light);">'+fmtDateTime(d.createdAt)+'</div>'+
+        '</div>'+
+      '</div>'+
+      '<div style="font-size:0.9rem;color:var(--ink-mid);line-height:1.65;white-space:pre-wrap;word-break:break-word;margin-bottom:12px;">'+d.content+'</div>'+
+      (d.status==='pending' ?
+        '<div style="display:flex;gap:8px;">'+
+          '<button onclick="approvePost(\''+item.id+'\')" style="flex:1;padding:10px;background:var(--grad);color:white;border:none;border-radius:10px;font-family:Lato,sans-serif;font-size:0.84rem;font-weight:700;cursor:pointer;">✅ Approve</button>'+
+          '<button onclick="openDeclineSheet(\''+item.id+'\')" style="flex:1;padding:10px;background:rgba(217,79,79,0.1);color:#d94f4f;border:1px solid rgba(217,79,79,0.25);border-radius:10px;font-family:Lato,sans-serif;font-size:0.84rem;font-weight:700;cursor:pointer;">❌ Decline</button>'+
+        '</div>'
+      : d.status==='declined' && d.declineReason ?
+        '<div style="padding:8px 12px;background:#fdecea;border-radius:8px;font-size:0.8rem;color:#d94f4f;"><strong>Reason:</strong> '+d.declineReason+'</div>'
+      : '<div style="font-size:0.8rem;color:var(--ok);font-weight:600;">✅ Approved — visible on Newsfeed</div>')+
+    '';
+    el.appendChild(card);
+  });
+}
+
+function getAdminInitials(name){
+  if(!name) return '?';
+  var p = name.trim().split(' ');
+  if(p.length>=2) return (p[0][0]+p[p.length-1][0]).toUpperCase();
+  return p[0].substring(0,2).toUpperCase();
+}
+
+function approvePost(id){
+  db.collection('posts').doc(id).update({status:'approved'})
+    .catch(function(e){ alert('Error: '+e.message); });
+}
+
+function openDeclineSheet(id){
+  currentDeclinePostId = id;
+  document.getElementById('declineReason').value = '';
+  document.getElementById('declineOverlay').classList.add('show');
+  document.getElementById('declineSheet').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDeclineSheet(){
+  document.getElementById('declineOverlay').classList.remove('show');
+  document.getElementById('declineSheet').classList.remove('open');
+  document.body.style.overflow = '';
+  currentDeclinePostId = null;
+}
+
+function confirmDecline(){
+  var reason = document.getElementById('declineReason').value.trim();
+  if(!reason){ alert('Please provide a reason.'); return; }
+  if(!currentDeclinePostId) return;
+  db.collection('posts').doc(currentDeclinePostId).update({
+    status:'declined',
+    declineReason: reason
+  }).then(function(){
+    closeDeclineSheet();
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+
+// Call loadPosts on init
 function doLogout(){auth.signOut().then(function(){window.location.href='index.html';});}
 </script>
+<!-- DECLINE POST SHEET -->
+<div class="sheet-overlay" id="declineOverlay" onclick="closeDeclineSheet()"></div>
+<div class="sheet" id="declineSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <span class="sheet-title">Decline Post</span>
+    <button class="sheet-close" onclick="closeDeclineSheet()">×</button>
+  </div>
+  <div class="sheet-body">
+    <p style="font-size:0.86rem;color:var(--ink-mid);margin-bottom:14px;">Please provide a reason for declining this post. The member will be able to see this.</p>
+    <span class="field-label">Reason</span>
+    <textarea id="declineReason" placeholder="e.g. Content is not appropriate for the community…" rows="3" style="margin-bottom:12px;min-height:80px;"></textarea>
+    <button class="reply-btn" onclick="confirmDecline()">Confirm Decline</button>
+  </div>
+</div>
 
-</script>
 </body>
 </html>
