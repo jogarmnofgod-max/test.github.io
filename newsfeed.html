@@ -286,29 +286,35 @@ textarea::placeholder{color:var(--light);font-style:italic;}
 </div>
 
 <script>
-var fb;
-try {
-  fb = firebase.initializeApp({
-  apiKey:"AIzaSyALcn8hMHIQ3K3qsBVNEC5F5qMvt8-f1ZQ",
-  authDomain:"amazing-hope-healing-system.firebaseapp.com",
-  projectId:"amazing-hope-healing-system",
-  storageBucket:"amazing-hope-healing-system.firebasestorage.app",
-  messagingSenderId:"311381790016",
-  appId:"1:311381790016:web:1a7c99150b37d4ab687ea5"
+var app;
+// Initialize with unique app name to avoid conflicts
+if(!firebase.apps.length){
+  app = firebase.initializeApp({
+    apiKey:"AIzaSyALcn8hMHIQ3K3qsBVNEC5F5qMvt8-f1ZQ",
+    authDomain:"amazing-hope-healing-system.firebaseapp.com",
+    projectId:"amazing-hope-healing-system",
+    storageBucket:"amazing-hope-healing-system.firebasestorage.app",
+    messagingSenderId:"311381790016",
+    appId:"1:311381790016:web:1a7c99150b37d4ab687ea5"
   });
-} catch(e){
-  fb = firebase.app();
+} else {
+  app = firebase.apps[0];
 }
-var auth=firebase.auth();
-var db=firebase.firestore();
+var auth = firebase.auth();
+var db   = firebase.firestore();
 
 var me=null, meData=null;
 var activeTab='feed';
 
 // ── AUTH ─────────────────────────────────────────────
 auth.onAuthStateChanged(function(u){
-  if(!u){window.location.href='index.html';return;}
+  if(!u){
+    console.log('No user — redirecting to login');
+    window.location.href='index.html';
+    return;
+  }
   me=u;
+  console.log('User logged in:', u.uid);
   db.collection('users').doc(u.uid).get().then(function(s){
     if(s.exists){
       meData=s.data();
@@ -318,10 +324,14 @@ auth.onAuthStateChanged(function(u){
     }
     loadFeed();
     loadMyPosts();
-  }).catch(function(){
+  }).catch(function(err){
+    console.error('User doc error:', err.message);
+    // Still try to load feed even if user doc fails
     loadFeed();
     loadMyPosts();
   });
+}, function(err){
+  console.error('Auth error:', err.message);
 });
 
 function doLogout(){auth.signOut().then(function(){window.location.href='index.html';});}
