@@ -286,55 +286,43 @@ textarea::placeholder{color:var(--light);font-style:italic;}
 </div>
 
 <script>
-var app;
-// Initialize with unique app name to avoid conflicts
-if(!firebase.apps.length){
-  app = firebase.initializeApp({
-    apiKey:"AIzaSyALcn8hMHIQ3K3qsBVNEC5F5qMvt8-f1ZQ",
-    authDomain:"amazing-hope-healing-system.firebaseapp.com",
-    projectId:"amazing-hope-healing-system",
-    storageBucket:"amazing-hope-healing-system.firebasestorage.app",
-    messagingSenderId:"311381790016",
-    appId:"1:311381790016:web:1a7c99150b37d4ab687ea5"
-  });
-} else {
-  app = firebase.apps[0];
-}
+// ── Firebase Init — same pattern as dashboard.html ────
+firebase.initializeApp({
+  apiKey:"AIzaSyALcn8hMHIQ3K3qsBVNEC5F5qMvt8-f1ZQ",
+  authDomain:"amazing-hope-healing-system.firebaseapp.com",
+  projectId:"amazing-hope-healing-system",
+  storageBucket:"amazing-hope-healing-system.firebasestorage.app",
+  messagingSenderId:"311381790016",
+  appId:"1:311381790016:web:1a7c99150b37d4ab687ea5"
+});
 var auth = firebase.auth();
 var db   = firebase.firestore();
 
 var me=null, meData=null;
-var activeTab='feed';
 
 // ── AUTH ─────────────────────────────────────────────
 auth.onAuthStateChanged(function(u){
-  if(!u){
-    console.log('No user — redirecting to login');
-    window.location.href='index.html';
-    return;
-  }
+  if(!u){ window.location.href='index.html'; return; }
   me=u;
-  console.log('User logged in:', u.uid);
-  db.collection('users').doc(u.uid).get().then(function(s){
-    if(s.exists){
-      meData=s.data();
-      if(meData.isAdmin){window.location.href='admin.html';return;}
-      var name=meData.fullName||'';
-      document.getElementById('avatarInitial').textContent=name.charAt(0).toUpperCase()||'U';
-    }
-    loadFeed();
-    loadMyPosts();
-  }).catch(function(err){
-    console.error('User doc error:', err.message);
-    // Still try to load feed even if user doc fails
-    loadFeed();
-    loadMyPosts();
-  });
-}, function(err){
-  console.error('Auth error:', err.message);
+  db.collection('users').doc(u.uid).get()
+    .then(function(s){
+      if(s.exists){
+        meData=s.data();
+        if(meData.isAdmin){ window.location.href='admin.html'; return; }
+        var name=meData.fullName||'';
+        document.getElementById('avatarInitial').textContent=name.charAt(0).toUpperCase()||'U';
+      }
+      loadFeed();
+      loadMyPosts();
+    })
+    .catch(function(err){
+      // Even if user doc fails, still load feed
+      loadFeed();
+      loadMyPosts();
+    });
 });
 
-function doLogout(){auth.signOut().then(function(){window.location.href='index.html';});}
+function doLogout(){ auth.signOut().then(function(){ window.location.href='index.html'; }); }
 
 // ── HELPERS ──────────────────────────────────────────
 function fmtDate(ts){
