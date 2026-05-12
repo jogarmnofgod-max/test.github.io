@@ -18,210 +18,76 @@
   --grad:linear-gradient(135deg,#1ab8e8,#1565d8,#0d3d8a);
 }
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-
 html,body{min-height:100vh;background:var(--ghost);font-family:Lato,sans-serif;color:var(--ink);}
-
-/* TOPBAR */
-.topbar{
-  position:sticky;top:0;z-index:50;
-  background:var(--white);border-bottom:1px solid var(--border);
-  height:56px;padding:0 16px;
-  display:flex;align-items:center;justify-content:space-between;
-  box-shadow:0 1px 8px rgba(21,101,216,0.07);
-}
+.topbar{position:sticky;top:0;z-index:50;background:var(--white);border-bottom:1px solid var(--border);height:56px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 8px rgba(21,101,216,0.07);}
 .t-left{display:flex;align-items:center;gap:10px;}
-.t-logo{width:32px;height:32px;filter:drop-shadow(0 2px 5px rgba(21,101,216,0.2));}
+.t-logo{width:32px;height:32px;}
 .t-logo img{width:100%;height:100%;object-fit:contain;display:block;}
 .t-name{font-family:"Playfair Display",serif;font-size:1rem;font-weight:600;color:var(--ink);}
 .t-name em{font-style:normal;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 .t-right{display:flex;align-items:center;gap:8px;}
 .avatar{width:32px;height:32px;border-radius:50%;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:700;flex-shrink:0;}
 .signout{background:none;border:1.5px solid var(--border);border-radius:8px;padding:6px 12px;font-family:Lato,sans-serif;font-size:0.78rem;font-weight:600;color:var(--light);cursor:pointer;}
-
-/* NAV TABS */
-.nav-tabs{
-  background:var(--white);border-bottom:1px solid var(--border);
-  display:flex;padding:0 16px;gap:0;position:sticky;top:56px;z-index:40;
-}
-.nav-tab{
-  flex:1;padding:12px 0;text-align:center;
-  font-size:0.8rem;font-weight:600;color:var(--light);
-  cursor:pointer;border-bottom:2px solid transparent;
-  transition:all .2s;
-}
+.nav-tabs{background:var(--white);border-bottom:1px solid var(--border);display:flex;position:sticky;top:56px;z-index:40;}
+.nav-tab{flex:1;padding:12px 0;text-align:center;font-size:0.8rem;font-weight:600;color:var(--light);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;}
 .nav-tab.active{color:var(--blue);border-bottom-color:var(--blue);}
-
-/* MAIN */
 main{max-width:520px;margin:0 auto;padding:16px 14px 100px;}
-
-/* POST CARD */
-.post-card{
-  background:var(--white);border-radius:14px;
-  border:1.5px solid var(--border);
-  margin-bottom:14px;overflow:hidden;
-  animation:fadeIn .35s ease both;
-}
+.post-card{background:var(--white);border-radius:14px;border:1.5px solid var(--border);margin-bottom:14px;overflow:hidden;animation:fadeIn .35s ease both;}
 .post-header{padding:14px 16px 0;display:flex;align-items:center;gap:10px;}
-.post-avatar{
-  width:40px;height:40px;border-radius:50%;
-  background:var(--grad);color:white;
-  display:flex;align-items:center;justify-content:center;
-  font-size:0.88rem;font-weight:700;flex-shrink:0;
-}
+.post-avatar{width:40px;height:40px;border-radius:50%;background:var(--grad);color:white;display:flex;align-items:center;justify-content:center;font-size:0.88rem;font-weight:700;flex-shrink:0;}
 .post-meta{flex:1;}
 .post-author{font-size:0.9rem;font-weight:700;color:var(--ink);}
 .post-date{font-size:0.72rem;color:var(--light);}
 .post-content{padding:12px 16px;font-size:0.92rem;color:var(--mid);line-height:1.7;white-space:pre-wrap;word-break:break-word;}
-.post-actions{
-  padding:8px 16px 12px;
-  display:flex;align-items:center;gap:16px;
-  border-top:1px solid var(--border);
-}
-.action-btn{
-  display:flex;align-items:center;gap:5px;
-  background:none;border:none;cursor:pointer;
-  font-family:Lato,sans-serif;font-size:0.82rem;
-  color:var(--light);font-weight:600;padding:6px 0;
-  transition:color .2s;
-}
+.post-actions{padding:8px 16px 12px;display:flex;align-items:center;gap:16px;border-top:1px solid var(--border);}
+.action-btn{display:flex;align-items:center;gap:5px;background:none;border:none;cursor:pointer;font-family:Lato,sans-serif;font-size:0.82rem;color:var(--light);font-weight:600;padding:6px 0;transition:color .2s;}
 .action-btn.liked{color:#e05555;}
-.action-btn:active{transform:scale(0.95);}
 .action-btn svg{width:18px;height:18px;}
-
-/* COMMENTS */
-.comments-section{
-  border-top:1px solid var(--border);
-  background:var(--ghost);
-  padding:10px 16px 12px;
-  display:none;
-}
+.comments-section{border-top:1px solid var(--border);background:var(--ghost);padding:10px 16px 12px;display:none;}
 .comments-section.open{display:block;}
-.comment-item{
-  display:flex;gap:8px;margin-bottom:10px;
-  animation:fadeIn .2s ease;
-}
-.comment-avatar{
-  width:28px;height:28px;border-radius:50%;
-  background:var(--grad);color:white;
-  display:flex;align-items:center;justify-content:center;
-  font-size:0.7rem;font-weight:700;flex-shrink:0;margin-top:2px;
-}
+.comment-item{display:flex;gap:8px;margin-bottom:10px;}
+.comment-avatar{width:28px;height:28px;border-radius:50%;background:var(--grad);color:white;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;flex-shrink:0;margin-top:2px;}
 .comment-bubble{flex:1;}
 .comment-name{font-size:0.75rem;font-weight:700;color:var(--ink);}
 .comment-text{font-size:0.85rem;color:var(--mid);line-height:1.55;white-space:pre-wrap;word-break:break-word;}
 .comment-time{font-size:0.68rem;color:var(--light);margin-top:2px;}
 .comment-input-row{display:flex;gap:8px;margin-top:8px;}
-.comment-input-row input{
-  flex:1;padding:9px 12px;
-  border:1.5px solid var(--border);border-radius:20px;
-  font-family:Lato,sans-serif;font-size:0.88rem;
-  background:var(--white);color:var(--ink);outline:none;
-  transition:border .2s;
-}
-.comment-input-row input:focus{border-color:var(--blue);}
-.comment-input-row button{
-  padding:9px 14px;background:var(--grad);color:white;
-  border:none;border-radius:20px;font-family:Lato,sans-serif;
-  font-size:0.82rem;font-weight:700;cursor:pointer;
-  white-space:nowrap;
-}
-/* Threaded replies */
-.comment-replies{margin-left:36px;margin-top:6px;}
-.reply-item{display:flex;gap:8px;margin-bottom:8px;animation:fadeIn .2s ease;}
-.reply-avatar{width:24px;height:24px;border-radius:50%;background:var(--pale);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;flex-shrink:0;margin-top:2px;border:1px solid var(--border);}
-.reply-btn{background:none;border:none;color:var(--blue);font-size:0.72rem;font-weight:700;cursor:pointer;padding:2px 0;margin-top:3px;font-family:Lato,sans-serif;}
+.comment-input-row input{flex:1;padding:9px 12px;border:1.5px solid var(--border);border-radius:20px;font-family:Lato,sans-serif;font-size:0.88rem;background:var(--white);color:var(--ink);outline:none;}
+.comment-send{padding:9px 14px;background:var(--grad);color:white;border:none;border-radius:20px;font-family:Lato,sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer;}
+.reply-btn-sm{background:none;border:none;color:var(--blue);font-size:0.72rem;font-weight:700;cursor:pointer;padding:2px 0;margin-top:3px;font-family:Lato,sans-serif;}
+.replies-wrap{margin-left:36px;margin-top:6px;}
+.reply-item{display:flex;gap:8px;margin-bottom:8px;}
+.reply-avatar{width:24px;height:24px;border-radius:50%;background:var(--pale);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;flex-shrink:0;border:1px solid var(--border);}
 .reply-input-row{display:flex;gap:6px;margin-top:6px;margin-left:36px;}
-.reply-input-row input{flex:1;padding:7px 12px;border:1.5px solid var(--border);border-radius:20px;font-family:Lato,sans-serif;font-size:0.84rem;background:var(--white);color:var(--ink);outline:none;transition:border .2s;}
-.reply-input-row input:focus{border-color:var(--blue);}
-.reply-input-row button{padding:7px 12px;background:var(--grad);color:white;border:none;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;white-space:nowrap;font-family:Lato,sans-serif;}
-
-/* MY POST CARD (pending/declined) */
-.my-post-card{
-  background:var(--white);border-radius:14px;
-  border:1.5px solid var(--border);
-  padding:14px 16px;margin-bottom:12px;
-  position:relative;
-}
-.status-chip{
-  display:inline-block;font-size:0.68rem;font-weight:700;
-  padding:3px 10px;border-radius:20px;text-transform:uppercase;
-  letter-spacing:0.05em;margin-bottom:8px;
-}
+.reply-input-row input{flex:1;padding:7px 12px;border:1.5px solid var(--border);border-radius:20px;font-family:Lato,sans-serif;font-size:0.84rem;background:var(--white);color:var(--ink);outline:none;}
+.reply-send{padding:7px 12px;background:var(--grad);color:white;border:none;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:Lato,sans-serif;}
+.my-post-card{background:var(--white);border-radius:14px;border:1.5px solid var(--border);padding:14px 16px;margin-bottom:12px;}
+.status-chip{display:inline-block;font-size:0.68rem;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;}
 .status-chip.pending{background:#fef3e6;color:#e07a1a;}
 .status-chip.approved{background:#edfaf4;color:#2fa870;}
 .status-chip.declined{background:#fdecea;color:#d94f4f;}
-.my-post-content{font-size:0.88rem;color:var(--mid);line-height:1.6;white-space:pre-wrap;}
-.decline-reason{
-  margin-top:8px;padding:8px 12px;
-  background:#fdecea;border-radius:8px;
-  font-size:0.8rem;color:#d94f4f;line-height:1.5;
-}
-
-/* FAB */
-.fab{
-  position:fixed;bottom:24px;right:20px;z-index:40;
-  width:56px;height:56px;border-radius:50%;
-  background:var(--grad);color:#fff;border:none;
-  font-size:1.6rem;cursor:pointer;
-  box-shadow:0 6px 22px rgba(21,101,216,0.38);
-  display:flex;align-items:center;justify-content:center;
-  transition:transform .2s;
-}
-.fab:active{transform:scale(0.92);}
-
-/* BOTTOM SHEET */
+.decline-reason{margin-top:8px;padding:8px 12px;background:#fdecea;border-radius:8px;font-size:0.8rem;color:#d94f4f;line-height:1.5;}
+.empty-state{text-align:center;padding:48px 20px;}
+.empty-icon{font-size:2.4rem;margin-bottom:12px;opacity:.45;}
+.empty-state p{color:var(--light);font-size:0.88rem;line-height:1.6;}
+.fab{position:fixed;bottom:24px;right:20px;z-index:40;width:56px;height:56px;border-radius:50%;background:var(--grad);color:#fff;border:none;font-size:1.6rem;cursor:pointer;box-shadow:0 6px 22px rgba(21,101,216,0.38);display:flex;align-items:center;justify-content:center;}
 .overlay{display:none;position:fixed;inset:0;background:rgba(26,42,58,0.48);z-index:100;}
 .overlay.on{display:block;}
-.sheet{
-  position:fixed;bottom:0;left:0;right:0;z-index:101;
-  background:var(--white);border-radius:22px 22px 0 0;
-  max-height:90vh;overflow-y:auto;
-  transform:translateY(100%);transition:transform .3s cubic-bezier(.32,1,.32,1);
-  padding-bottom:env(safe-area-inset-bottom,16px);
-}
+.sheet{position:fixed;bottom:0;left:0;right:0;z-index:101;background:var(--white);border-radius:22px 22px 0 0;max-height:90vh;overflow-y:auto;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,1,.32,1);}
 .sheet.on{transform:translateY(0);}
 .handle{width:40px;height:4px;background:var(--border);border-radius:4px;margin:12px auto 0;}
-.s-head{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:14px 18px 12px;border-bottom:1px solid var(--border);
-}
+.s-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 12px;border-bottom:1px solid var(--border);}
 .s-title{font-family:"Playfair Display",serif;font-size:1.05rem;color:var(--ink);}
 .s-close{width:30px;height:30px;border-radius:50%;border:none;background:var(--ghost);color:var(--mid);font-size:1.1rem;cursor:pointer;}
 .s-body{padding:16px 18px 24px;}
 .f-label{display:block;font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--mid);margin-bottom:6px;}
-.f-field{margin-bottom:14px;}
-textarea{
-  width:100%;padding:13px 15px;
-  border:1.5px solid var(--border);border-radius:12px;
-  font-family:Lato,sans-serif;font-size:0.95rem;color:var(--ink);
-  background:var(--ghost);outline:none;resize:none;
-  transition:border .2s;line-height:1.6;min-height:140px;
-}
+textarea{width:100%;padding:13px 15px;border:1.5px solid var(--border);border-radius:12px;font-family:Lato,sans-serif;font-size:0.95rem;color:var(--ink);background:var(--ghost);outline:none;resize:none;transition:border .2s;line-height:1.6;min-height:140px;}
 textarea:focus{border-color:var(--sky);background:var(--white);}
 textarea::placeholder{color:var(--light);font-style:italic;}
-.submit-btn{
-  width:100%;padding:14px;background:var(--grad);color:#fff;border:none;
-  border-radius:13px;font-family:Lato,sans-serif;font-size:1rem;font-weight:700;
-  cursor:pointer;box-shadow:0 4px 18px rgba(21,101,216,0.28);
-  transition:opacity .2s;
-}
-.submit-btn:active{opacity:.88;}
+.submit-btn{width:100%;padding:14px;background:var(--grad);color:#fff;border:none;border-radius:13px;font-family:Lato,sans-serif;font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 4px 18px rgba(21,101,216,0.28);}
 .submit-btn:disabled{opacity:.6;cursor:not-allowed;}
 .msg-err{font-size:0.82rem;padding:10px 14px;border-radius:10px;margin-bottom:12px;text-align:center;background:#fef0f0;color:var(--err);display:none;}
-.msg-ok{font-size:0.82rem;padding:10px 14px;border-radius:10px;margin-bottom:12px;text-align:center;background:#edfaf4;color:var(--ok);}
-
-/* CHAR COUNTER */
 .char-counter{font-size:0.72rem;color:var(--light);text-align:right;margin-top:4px;}
-.char-counter.warn{color:#e07a1a;}
-.char-counter.over{color:var(--err);}
-
-/* EMPTY STATE */
-.empty-state{text-align:center;padding:48px 20px;}
-.empty-icon{font-size:2.4rem;margin-bottom:12px;opacity:.45;}
-.empty-state p{color:var(--light);font-size:0.88rem;line-height:1.6;}
-
-@media(min-width:500px){main{padding:20px 20px 100px;}}
 </style>
 </head>
 <body>
@@ -237,56 +103,46 @@ textarea::placeholder{color:var(--light);font-style:italic;}
   </div>
 </div>
 
-<!-- NAV TABS -->
 <div class="nav-tabs">
-  <div class="nav-tab" onclick="window.location.href='dashboard.html'">My Confessions</div>
-  <div class="nav-tab active">Newsfeed</div>
+  <div class="nav-tab" id="tab-confessions" onclick="goConfessions()">My Confessions</div>
+  <div class="nav-tab active" id="tab-feed" onclick="switchTab('feed')">Newsfeed</div>
+  <div class="nav-tab" id="tab-mine" onclick="switchTab('mine')">My Posts</div>
 </div>
 
 <main>
-  <!-- TAB: FEED -->
   <div id="tabFeed">
     <div id="postList">
-      <div class="empty-state"><div class="empty-icon">📰</div><p>Loading posts…</p></div>
+      <div class="empty-state"><div class="empty-icon">&#x23F3;</div><p>Loading posts&#x2026;</p></div>
     </div>
   </div>
-
-  <!-- TAB: MY POSTS -->
-  <div id="tabMyPosts" style="display:none;">
+  <div id="tabMine" style="display:none;">
     <div id="myPostList">
-      <div class="empty-state"><div class="empty-icon">📝</div><p>Loading your posts…</p></div>
+      <div class="empty-state"><div class="empty-icon">&#x23F3;</div><p>Loading&#x2026;</p></div>
     </div>
   </div>
 </main>
 
-<!-- FAB -->
-<button class="fab" onclick="openPostSheet()" title="Share something">+</button>
+<button class="fab" onclick="openSheet()">+</button>
 
-<!-- SUBMIT POST SHEET -->
-<div class="overlay" id="postOverlay" onclick="closePostSheet()"></div>
-<div class="sheet" id="postSheet">
+<div class="overlay" id="overlay" onclick="closeSheet()"></div>
+<div class="sheet" id="sheet">
   <div class="handle"></div>
   <div class="s-head">
     <span class="s-title">Share Something</span>
-    <button class="s-close" onclick="closePostSheet()">×</button>
+    <button class="s-close" onclick="closeSheet()">x</button>
   </div>
   <div class="s-body">
-    <p style="font-size:0.85rem;color:var(--light);font-style:italic;margin-bottom:16px;text-align:center;">
-      Share a devotion, testimony, or something God did in your life today. 🙏<br/>
-      <strong style="color:var(--mid);">Posts need admin approval before they appear.</strong>
-    </p>
+    <p style="font-size:0.84rem;color:var(--light);font-style:italic;text-align:center;margin-bottom:14px;">Share a devotion, testimony, or something God did in your life. Posts need admin approval before appearing.</p>
     <div class="msg-err" id="postErr"></div>
-    <div class="f-field">
-      <span class="f-label">Your Post</span>
-      <textarea id="postContent" placeholder="Write your devotion or testimony here…" maxlength="1000" oninput="updateCharCount()"></textarea>
-      <div class="char-counter" id="charCount">0 / 1000</div>
-    </div>
+    <span class="f-label">Your Post</span>
+    <textarea id="postContent" placeholder="Write your devotion or testimony here..." maxlength="1000" oninput="updateCount()"></textarea>
+    <div class="char-counter" id="charCount">0 / 1000</div>
+    <br/>
     <button class="submit-btn" id="postBtn" onclick="submitPost()">Submit for Approval</button>
   </div>
 </div>
 
 <script>
-// ── Firebase Init — same pattern as dashboard.html ────
 firebase.initializeApp({
   apiKey:"AIzaSyALcn8hMHIQ3K3qsBVNEC5F5qMvt8-f1ZQ",
   authDomain:"amazing-hope-healing-system.firebaseapp.com",
@@ -297,309 +153,238 @@ firebase.initializeApp({
 });
 var auth = firebase.auth();
 var db   = firebase.firestore();
+var me = null, meData = null;
 
-var me=null, meData=null;
-
-// ── AUTH ─────────────────────────────────────────────
 auth.onAuthStateChanged(function(u){
   if(!u){ window.location.href='index.html'; return; }
-  me=u;
+  me = u;
   db.collection('users').doc(u.uid).get()
     .then(function(s){
       if(s.exists){
-        meData=s.data();
+        meData = s.data();
         if(meData.isAdmin){ window.location.href='admin.html'; return; }
-        var name=meData.fullName||'';
-        document.getElementById('avatarInitial').textContent=name.charAt(0).toUpperCase()||'U';
+        var n = meData.fullName||'';
+        document.getElementById('avatarInitial').textContent = n.charAt(0).toUpperCase()||'U';
       }
       loadFeed();
       loadMyPosts();
     })
-    .catch(function(err){
-      // Even if user doc fails, still load feed
-      loadFeed();
-      loadMyPosts();
-    });
+    .catch(function(){ loadFeed(); loadMyPosts(); });
 });
 
 function doLogout(){ auth.signOut().then(function(){ window.location.href='index.html'; }); }
+function goConfessions(){ window.location.href='dashboard.html'; }
 
-// ── HELPERS ──────────────────────────────────────────
+function switchTab(t){
+  document.getElementById('tab-feed').classList.toggle('active', t==='feed');
+  document.getElementById('tab-mine').classList.toggle('active', t==='mine');
+  document.getElementById('tabFeed').style.display  = t==='feed' ? 'block':'none';
+  document.getElementById('tabMine').style.display  = t==='mine' ? 'block':'none';
+}
+
 function fmtDate(ts){
-  if(!ts||!ts.toDate)return'—';
+  if(!ts||!ts.toDate) return '';
   return new Intl.DateTimeFormat('en-PH',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'}).format(ts.toDate());
 }
-function getInitials(name){
-  if(!name)return'?';
+function initials(name){
+  if(!name) return '?';
   var p=name.trim().split(' ');
-  if(p.length>=2)return(p[0][0]+p[p.length-1][0]).toUpperCase();
-  return p[0].substring(0,2).toUpperCase();
+  return p.length>=2 ? (p[0][0]+p[p.length-1][0]).toUpperCase() : p[0].substring(0,2).toUpperCase();
 }
 
-// ── TAB SWITCHING ────────────────────────────────────
-function switchTab(tab){
-  activeTab=tab;
-  document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.remove('active');});
-  event.currentTarget.classList.add('active');
-  document.getElementById('tabFeed').style.display=tab==='feed'?'block':'none';
-  document.getElementById('tabMyPosts').style.display=tab==='mine'?'block':'none';
-}
-
-// ── LOAD APPROVED FEED ───────────────────────────────
+// ── FEED ─────────────────────────────────────────────────────────────
 function loadFeed(){
-  var el=document.getElementById('postList');
-  el.innerHTML='<div class="empty-state"><div class="empty-icon">⏳</div><p>Loading posts…</p></div>';
-  db.collection('posts')
-    .onSnapshot(function(snap){
-      var posts=[];
-      snap.forEach(function(d){
-        var data=d.data();
-        // Filter: only approved posts
-        if(data.status==='approved'){
-          posts.push({id:d.id,d:data});
-        }
-      });
-      posts.sort(function(a,b){
-        var ta=a.d.createdAt?a.d.createdAt.toMillis():0;
-        var tb=b.d.createdAt?b.d.createdAt.toMillis():0;
-        return tb-ta;
-      });
-      if(posts.length===0){
-        el.innerHTML='<div class="empty-state"><div class="empty-icon">🌟</div><p>No posts yet.<br/>Be the first to share something!</p></div>';
-        return;
-      }
-      el.innerHTML='';
-      posts.forEach(function(item,i){
-        el.appendChild(buildPostCard(item.id,item.d,i));
-      });
-    },function(err){
-      el.innerHTML='<div class="empty-state"><div class="empty-icon">⚠️</div><p>Could not load posts.<br/>'+err.message+'</p></div>';
-      console.error('loadFeed error:',err);
+  db.collection('posts').onSnapshot(function(snap){
+    var posts=[];
+    snap.forEach(function(d){
+      var data=d.data();
+      if(data.status==='approved') posts.push({id:d.id,d:data});
     });
+    posts.sort(function(a,b){
+      return (b.d.createdAt?b.d.createdAt.toMillis():0)-(a.d.createdAt?a.d.createdAt.toMillis():0);
+    });
+    var el=document.getElementById('postList');
+    el.innerHTML='';
+    if(!posts.length){
+      el.innerHTML='<div class="empty-state"><div class="empty-icon">&#x1F31F;</div><p>No posts yet. Be the first to share!</p></div>';
+      return;
+    }
+    posts.forEach(function(item,i){ el.appendChild(makeCard(item.id,item.d,i)); });
+  }, function(err){
+    document.getElementById('postList').innerHTML='<div class="empty-state"><div class="empty-icon">&#x26A0;&#xFE0F;</div><p>Error: '+err.message+'</p></div>';
+  });
 }
 
-function buildPostCard(id,d,idx){
-  var isLiked=me && d.likedBy && d.likedBy.indexOf(me.uid)>-1;
-  var initials=getInitials(d.fullName);
-  var card=document.createElement('div');
+function makeCard(id,d,idx){
+  var liked = me && d.likedBy && d.likedBy.indexOf(me.uid)>-1;
+  var card  = document.createElement('div');
   card.className='post-card';
   card.style.animationDelay=(idx*0.05)+'s';
-  card.id='post-'+id;
+  card.id='card-'+id;
 
-  card.innerHTML=
-    '<div class="post-header">'+
-      '<div class="post-avatar">'+initials+'</div>'+
-      '<div class="post-meta">'+
-        '<div class="post-author">'+d.fullName+'</div>'+
-        '<div class="post-date">'+fmtDate(d.createdAt)+'</div>'+
-      '</div>'+
-    '</div>'+
-    '<div class="post-content">'+d.content+'</div>'+
-    '<div class="post-actions">'+
-      '<button class="action-btn'+(isLiked?' liked':'')+'" onclick="toggleLike(\'''+id+'\')">'+
-        '<svg viewBox="0 0 24 24" fill="'+(isLiked?'#e05555':'none')+'" stroke="'+(isLiked?'#e05555':'currentColor')+'" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>'+
-        '<span id="like-count-'+id+'">'+((d.likesCount||0))+'</span>'+
-      '</button>'+
-      '<button class="action-btn" onclick="toggleComments(\'''+id+'\')">'+
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>'+
-        '<span id="comment-count-'+id+'">Comments</span>'+
-      '</button>'+
-    '</div>'+
-    '<div class="comments-section" id="comments-'+id+'">'+
-      '<div id="comment-list-'+id+'"></div>'+
-      '<div class="comment-input-row">'+
-        '<input type="text" id="comment-input-'+id+'" placeholder="Write a comment…" onkeydown="handleCommentKey(event,\'''+id+'\')">'+
-        '<button onclick="submitComment(\'''+id+'\')">Post</button>'+
-      '</div>'+
-    '</div>';
+  var hdr=document.createElement('div'); hdr.className='post-header';
+  var av=document.createElement('div');  av.className='post-avatar'; av.textContent=initials(d.fullName);
+  var mt=document.createElement('div');  mt.className='post-meta';
+  var an=document.createElement('div');  an.className='post-author'; an.textContent=d.fullName||'Member';
+  var dt=document.createElement('div');  dt.className='post-date';   dt.textContent=fmtDate(d.createdAt);
+  mt.appendChild(an); mt.appendChild(dt);
+  hdr.appendChild(av); hdr.appendChild(mt);
+  card.appendChild(hdr);
+
+  var body=document.createElement('div'); body.className='post-content'; body.textContent=d.content||'';
+  card.appendChild(body);
+
+  var actions=document.createElement('div'); actions.className='post-actions';
+
+  // Like button
+  var likeBtn=document.createElement('button');
+  likeBtn.className='action-btn'+(liked?' liked':'');
+  likeBtn.innerHTML='<svg viewBox="0 0 24 24" fill="'+(liked?'#e05555':'none')+'" stroke="'+(liked?'#e05555':'currentColor')+'" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
+  var likeCount=document.createElement('span'); likeCount.textContent=d.likesCount||0;
+  likeBtn.appendChild(likeCount);
+  likeBtn.addEventListener('click', function(){ toggleLike(id); });
+
+  // Comment button
+  var cmtBtn=document.createElement('button'); cmtBtn.className='action-btn';
+  cmtBtn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';
+  var cmtSpan=document.createElement('span'); cmtSpan.id='cc-'+id; cmtSpan.textContent='Comments';
+  cmtBtn.appendChild(cmtSpan);
+  cmtBtn.addEventListener('click', function(){ toggleComments(id); });
+
+  actions.appendChild(likeBtn);
+  actions.appendChild(cmtBtn);
+  card.appendChild(actions);
+
+  // Comments section
+  var cs=document.createElement('div'); cs.className='comments-section'; cs.id='cs-'+id;
+  var cl=document.createElement('div'); cl.id='cl-'+id; cs.appendChild(cl);
+  var cir=document.createElement('div'); cir.className='comment-input-row';
+  var ci=document.createElement('input'); ci.type='text'; ci.placeholder='Write a comment...'; ci.id='ci-'+id;
+  ci.addEventListener('keydown',function(e){ if(e.key==='Enter'){e.preventDefault();sendComment(id);} });
+  var cb=document.createElement('button'); cb.className='comment-send'; cb.textContent='Post';
+  cb.addEventListener('click',function(){ sendComment(id); });
+  cir.appendChild(ci); cir.appendChild(cb); cs.appendChild(cir);
+  card.appendChild(cs);
 
   return card;
 }
 
-// ── LIKE ─────────────────────────────────────────────
-function toggleLike(postId){
-  if(!me)return;
-  var postRef=db.collection('posts').doc(postId);
-  postRef.get().then(function(s){
-    if(!s.exists)return;
-    var data=s.data();
-    var liked=data.likedBy&&data.likedBy.indexOf(me.uid)>-1;
-    if(liked){
-      postRef.update({
-        likedBy:firebase.firestore.FieldValue.arrayRemove(me.uid),
-        likesCount:firebase.firestore.FieldValue.increment(-1)
-      });
-    } else {
-      postRef.update({
-        likedBy:firebase.firestore.FieldValue.arrayUnion(me.uid),
-        likesCount:firebase.firestore.FieldValue.increment(1)
-      });
-    }
-    // Update UI immediately
-    var btn=document.querySelector('#post-'+postId+' .action-btn');
-    var countEl=document.getElementById('like-count-'+postId);
-    if(btn&&countEl){
-      btn.classList.toggle('liked',!liked);
-      var svg=btn.querySelector('svg');
-      if(svg){
-        svg.setAttribute('fill',liked?'none':'#e05555');
-        svg.setAttribute('stroke',liked?'currentColor':'#e05555');
-      }
-      countEl.textContent=Math.max(0,(data.likesCount||0)+(liked?-1:1));
-    }
+// ── LIKE ─────────────────────────────────────────────────────────────
+function toggleLike(id){
+  if(!me) return;
+  db.collection('posts').doc(id).get().then(function(s){
+    if(!s.exists) return;
+    var d=s.data();
+    var liked=d.likedBy&&d.likedBy.indexOf(me.uid)>-1;
+    db.collection('posts').doc(id).update({
+      likedBy: liked ? firebase.firestore.FieldValue.arrayRemove(me.uid) : firebase.firestore.FieldValue.arrayUnion(me.uid),
+      likesCount: firebase.firestore.FieldValue.increment(liked?-1:1)
+    });
   });
 }
 
-// ── COMMENTS (Threaded) ──────────────────────────────
-function toggleComments(postId){
-  var section=document.getElementById('comments-'+postId);
-  var isOpen=section.classList.contains('open');
-  if(isOpen){section.classList.remove('open');return;}
-  section.classList.add('open');
-  loadComments(postId);
+// ── COMMENTS ─────────────────────────────────────────────────────────
+function toggleComments(id){
+  var cs=document.getElementById('cs-'+id);
+  if(cs.classList.contains('open')){ cs.classList.remove('open'); return; }
+  cs.classList.add('open');
+  loadComments(id);
 }
 
 function loadComments(postId){
-  var el=document.getElementById('comment-list-'+postId);
-  el.innerHTML='<p style="font-size:0.8rem;color:var(--light);padding:4px 0;">Loading…</p>';
-  db.collection('comments')
-    .where('postId','==',postId)
-    .get().then(function(snap){
-      var topComments=[];
-      snap.forEach(function(d){
-        var data=d.data();
-        // Only top-level comments (parentId is '' or missing)
-        if(!data.parentId || data.parentId===''){
-          topComments.push({id:d.id,d:data});
-        }
-      });
-      topComments.sort(function(a,b){
-        return (a.d.createdAt?a.d.createdAt.toMillis():0)-(b.d.createdAt?b.d.createdAt.toMillis():0);
-      });
-      el.innerHTML='';
-      var countEl=document.getElementById('comment-count-'+postId);
-      var total=snap.size;
-      if(countEl) countEl.textContent=total+' comment'+(total===1?'':'s');
-      if(topComments.length===0){
-        el.innerHTML='<p style="font-size:0.8rem;color:var(--light);padding:4px 0;">No comments yet. Be the first!</p>';
-      } else {
-        topComments.forEach(function(item){
-          el.appendChild(buildCommentEl(item.id,item.d,postId));
-        });
-      }
-    }).catch(function(e){
-      el.innerHTML='<p style="font-size:0.8rem;color:var(--err);">Could not load comments: '+e.message+'</p>';
+  var el=document.getElementById('cl-'+postId);
+  el.innerHTML='<p style="font-size:0.8rem;color:var(--light);padding:4px 0;">Loading...</p>';
+  db.collection('comments').where('postId','==',postId).get().then(function(snap){
+    var top=[]; var total=0;
+    snap.forEach(function(d){
+      total++;
+      var data=d.data();
+      if(!data.parentId||data.parentId==='') top.push({id:d.id,d:data});
     });
+    top.sort(function(a,b){ return (a.d.createdAt?a.d.createdAt.toMillis():0)-(b.d.createdAt?b.d.createdAt.toMillis():0); });
+    var cc=document.getElementById('cc-'+postId);
+    if(cc) cc.textContent=total+' comment'+(total===1?'':'s');
+    el.innerHTML='';
+    if(!top.length){
+      el.innerHTML='<p style="font-size:0.8rem;color:var(--light);padding:4px 0;">No comments yet. Be the first!</p>';
+    } else {
+      top.forEach(function(item){ el.appendChild(makeComment(item.id,item.d,postId)); });
+    }
+  }).catch(function(e){
+    el.innerHTML='<p style="font-size:0.8rem;color:var(--err);">Could not load: '+e.message+'</p>';
+  });
 }
 
-function buildCommentEl(commentId,d,postId){
-  var wrapper=document.createElement('div');
+function makeComment(cid,d,postId){
+  var wrap=document.createElement('div');
 
-  var item=document.createElement('div');
-  item.className='comment-item';
-  item.innerHTML=
-    '<div class="comment-avatar">'+getInitials(d.fullName)+'</div>'+
-    '<div class="comment-bubble">'+
-      '<div class="comment-name">'+d.fullName+'</div>'+
-      '<div class="comment-text">'+d.text+'</div>'+
-      '<div class="comment-time">'+fmtDate(d.createdAt)+'</div>'+
-      '<button class="reply-btn" onclick="toggleReplyInput(\''+commentId+'\',\''+postId+'\')">↩ Reply</button>'+
-    '</div>';
-  wrapper.appendChild(item);
+  var item=document.createElement('div'); item.className='comment-item';
+  var av=document.createElement('div');   av.className='comment-avatar'; av.textContent=initials(d.fullName);
+  var bub=document.createElement('div');  bub.className='comment-bubble';
+  var nm=document.createElement('div');   nm.className='comment-name';  nm.textContent=d.fullName||'Member';
+  var tx=document.createElement('div');   tx.className='comment-text';  tx.textContent=d.text||'';
+  var tm=document.createElement('div');   tm.className='comment-time';  tm.textContent=fmtDate(d.createdAt);
+  var rb=document.createElement('button'); rb.className='reply-btn-sm'; rb.textContent='Reply';
+  rb.addEventListener('click',function(){ toggleReplyInput(cid); });
+  bub.appendChild(nm); bub.appendChild(tx); bub.appendChild(tm); bub.appendChild(rb);
+  item.appendChild(av); item.appendChild(bub);
+  wrap.appendChild(item);
 
   // Replies container
-  var repliesEl=document.createElement('div');
-  repliesEl.className='comment-replies';
-  repliesEl.id='replies-'+commentId;
-  wrapper.appendChild(repliesEl);
+  var rw=document.createElement('div'); rw.className='replies-wrap'; rw.id='rw-'+cid;
+  wrap.appendChild(rw);
+  loadReplies(cid,rw);
 
-  // Reply input (hidden by default)
-  var replyRow=document.createElement('div');
-  replyRow.className='reply-input-row';
-  replyRow.id='reply-input-'+commentId;
-  replyRow.style.display='none';
-  replyRow.innerHTML=
-    '<input type="text" placeholder="Write a reply…" onkeydown="handleReplyKey(event,\''+commentId+'\',\''+postId+'\')"/>'+
-    '<button onclick="submitReply(\''+commentId+'\',\''+postId+'\')">Reply</button>';
-  wrapper.appendChild(replyRow);
+  // Reply input (hidden)
+  var ri=document.createElement('div'); ri.className='reply-input-row'; ri.id='ri-'+cid; ri.style.display='none';
+  var rin=document.createElement('input'); rin.type='text'; rin.placeholder='Write a reply...';
+  rin.addEventListener('keydown',function(e){ if(e.key==='Enter'){e.preventDefault();sendReply(cid,postId,rin);} });
+  var rsb=document.createElement('button'); rsb.className='reply-send'; rsb.textContent='Reply';
+  rsb.addEventListener('click',function(){ sendReply(cid,postId,rin); });
+  ri.appendChild(rin); ri.appendChild(rsb);
+  wrap.appendChild(ri);
 
-  // Load existing replies
-  loadReplies(commentId,repliesEl);
-  return wrapper;
+  return wrap;
 }
 
-function buildReplyEl(r){
-  var div=document.createElement('div');
-  div.className='reply-item';
-  div.innerHTML=
-    '<div class="reply-avatar">'+getInitials(r.fullName)+'</div>'+
-    '<div class="comment-bubble">'+
-      '<div class="comment-name">'+r.fullName+'</div>'+
-      '<div class="comment-text">'+r.text+'</div>'+
-      '<div class="comment-time">'+fmtDate(r.createdAt)+'</div>'+
-    '</div>';
-  return div;
+function toggleReplyInput(cid){
+  var ri=document.getElementById('ri-'+cid);
+  if(!ri) return;
+  var open=ri.style.display==='flex';
+  ri.style.display=open?'none':'flex';
+  if(!open) ri.querySelector('input').focus();
 }
 
-function loadReplies(commentId,container){
-  // Use .where('postId') not .where('parentId') to avoid index requirement
-  // Then filter client-side by parentId
-  db.collection('comments').get().then(function(allSnap){
+function loadReplies(cid,container){
+  db.collection('comments').where('postId','==','__replies__').get().catch(function(){});
+  // Load all comments and filter by parentId client-side
+  db.collection('comments').get().then(function(snap){
     var replies=[];
-    allSnap.forEach(function(d){
+    snap.forEach(function(d){
       var data=d.data();
-      if(data.parentId===commentId) replies.push(data);
+      if(data.parentId===cid) replies.push(data);
     });
-    replies.sort(function(a,b){
-      return (a.createdAt?a.createdAt.toMillis():0)-(b.createdAt?b.createdAt.toMillis():0);
-    });
+    replies.sort(function(a,b){ return (a.createdAt?a.createdAt.toMillis():0)-(b.createdAt?b.createdAt.toMillis():0); });
     container.innerHTML='';
-    replies.forEach(function(r){ container.appendChild(buildReplyEl(r)); });
-  }).catch(function(e){ console.error('loadReplies error:',e); });
+    replies.forEach(function(r){
+      var div=document.createElement('div'); div.className='reply-item';
+      var av=document.createElement('div'); av.className='reply-avatar'; av.textContent=initials(r.fullName);
+      var bub=document.createElement('div'); bub.className='comment-bubble';
+      var nm=document.createElement('div'); nm.className='comment-name'; nm.textContent=r.fullName||'Member';
+      var tx=document.createElement('div'); tx.className='comment-text'; tx.textContent=r.text||'';
+      var tm=document.createElement('div'); tm.className='comment-time'; tm.textContent=fmtDate(r.createdAt);
+      bub.appendChild(nm); bub.appendChild(tx); bub.appendChild(tm);
+      div.appendChild(av); div.appendChild(bub);
+      container.appendChild(div);
+    });
+  });
 }
 
-function toggleReplyInput(commentId,postId){
-  var row=document.getElementById('reply-input-'+commentId);
-  if(row){
-    row.style.display=row.style.display==='none'?'flex':'none';
-    if(row.style.display==='flex') row.querySelector('input').focus();
-  }
-}
-
-function handleReplyKey(e,commentId,postId){
-  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();submitReply(commentId,postId);}
-}
-
-function submitReply(commentId,postId){
-  if(!me)return;
-  var row=document.getElementById('reply-input-'+commentId);
-  var input=row.querySelector('input');
+function sendComment(postId){
+  if(!me) return;
+  var input=document.getElementById('ci-'+postId);
   var text=input.value.trim();
-  if(!text)return;
-  input.value='';
-  db.collection('comments').add({
-    postId:postId,
-    parentId:commentId,
-    userId:me.uid,
-    fullName:meData?meData.fullName:(me.email||'Member'),
-    text:text,
-    createdAt:firebase.firestore.FieldValue.serverTimestamp()
-  }).then(function(){
-    var container=document.getElementById('replies-'+commentId);
-    if(container) loadReplies(commentId,container);
-    row.style.display='none';
-  }).catch(function(e){alert('Error: '+e.message);});
-}
-
-function handleCommentKey(e,postId){
-  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();submitComment(postId);}
-}
-
-function submitComment(postId){
-  if(!me)return;
-  var input=document.getElementById('comment-input-'+postId);
-  var text=input.value.trim();
-  if(!text)return;
+  if(!text) return;
   input.value='';
   db.collection('comments').add({
     postId:postId,
@@ -608,121 +393,124 @@ function submitComment(postId){
     fullName:meData?meData.fullName:(me.email||'Member'),
     text:text,
     createdAt:firebase.firestore.FieldValue.serverTimestamp()
-  }).then(function(){loadComments(postId);})
-  .catch(function(e){alert('Error: '+e.message);});
+  }).then(function(){ loadComments(postId); })
+  .catch(function(e){ alert('Error: '+e.message); });
 }
 
-// ── MY POSTS ─────────────────────────────────────────
+function sendReply(cid,postId,input){
+  if(!me) return;
+  var text=input.value.trim();
+  if(!text) return;
+  input.value='';
+  db.collection('comments').add({
+    postId:postId,
+    parentId:cid,
+    userId:me.uid,
+    fullName:meData?meData.fullName:(me.email||'Member'),
+    text:text,
+    createdAt:firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(){
+    var rw=document.getElementById('rw-'+cid);
+    if(rw) loadReplies(cid,rw);
+    var ri=document.getElementById('ri-'+cid);
+    if(ri) ri.style.display='none';
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+
+// ── MY POSTS ─────────────────────────────────────────────────────────
 function loadMyPosts(){
-  if(!me)return;
-  db.collection('posts')
-    .onSnapshot(function(snap){
-      var posts=[];
-      snap.forEach(function(d){
-        var data=d.data();
-        // Filter client-side for own posts
-        if(data.userId===me.uid){
-          posts.push({id:d.id,d:data});
-        }
-      });
-      posts.sort(function(a,b){
-        var ta=a.d.createdAt?a.d.createdAt.toMillis():0;
-        var tb=b.d.createdAt?b.d.createdAt.toMillis():0;
-        return tb-ta;
-      });
-      var el=document.getElementById('myPostList');
-      if(posts.length===0){
-        el.innerHTML='<div class="empty-state"><div class="empty-icon">📝</div><p>You have not posted anything yet.</p></div>';
-        return;
-      }
-      el.innerHTML='';
-      posts.forEach(function(item){
-        var d=item.d;
-        var card=document.createElement('div');
-        card.className='my-post-card';
-        var statusLabel={pending:'⏳ Pending Approval',approved:'✅ Approved',declined:'❌ Declined'}[d.status]||'Pending';
-        card.innerHTML=
-          '<span class="status-chip '+d.status+'">'+statusLabel+'</span>'+
-          '<div class="post-date" style="margin-bottom:6px;font-size:0.72rem;color:var(--light);">'+fmtDate(d.createdAt)+'</div>'+
-          '<div class="my-post-content">'+d.content+'</div>'+
-          (d.status==='declined'&&d.declineReason?'<div class="decline-reason"><strong>Reason:</strong> '+d.declineReason+'</div>':'')+
-          (d.status==='pending'?'<button onclick="deleteMyPost(\'''+item.id+'\')" style="margin-top:10px;background:none;border:1px solid rgba(217,79,79,0.3);color:#d94f4f;border-radius:8px;padding:5px 14px;font-family:Lato,sans-serif;font-size:0.76rem;font-weight:700;cursor:pointer;">Delete</button>':'');
-        el.appendChild(card);
-      });
+  if(!me) return;
+  db.collection('posts').onSnapshot(function(snap){
+    var posts=[];
+    snap.forEach(function(d){
+      var data=d.data();
+      if(data.userId===me.uid) posts.push({id:d.id,d:data});
     });
+    posts.sort(function(a,b){
+      return (b.d.createdAt?b.d.createdAt.toMillis():0)-(a.d.createdAt?a.d.createdAt.toMillis():0);
+    });
+    var el=document.getElementById('myPostList');
+    el.innerHTML='';
+    if(!posts.length){
+      el.innerHTML='<div class="empty-state"><div class="empty-icon">&#x1F4DD;</div><p>You have not posted anything yet.</p></div>';
+      return;
+    }
+    posts.forEach(function(item){
+      var d=item.d;
+      var card=document.createElement('div'); card.className='my-post-card';
+      var chip=document.createElement('span');
+      chip.className='status-chip '+(d.status||'pending');
+      chip.textContent={pending:'Pending Approval',approved:'Approved',declined:'Declined'}[d.status]||'Pending';
+      var dt=document.createElement('div');
+      dt.style.cssText='font-size:0.72rem;color:var(--light);margin-bottom:6px;';
+      dt.textContent=fmtDate(d.createdAt);
+      var tx=document.createElement('div');
+      tx.style.cssText='font-size:0.88rem;color:var(--mid);line-height:1.6;white-space:pre-wrap;word-break:break-word;';
+      tx.textContent=d.content||'';
+      card.appendChild(chip); card.appendChild(dt); card.appendChild(tx);
+      if(d.status==='declined'&&d.declineReason){
+        var dr=document.createElement('div'); dr.className='decline-reason';
+        dr.innerHTML='<strong>Reason:</strong> '+d.declineReason;
+        card.appendChild(dr);
+      }
+      if(d.status==='pending'){
+        var delBtn=document.createElement('button');
+        delBtn.style.cssText='margin-top:10px;background:none;border:1px solid rgba(217,79,79,0.3);color:#d94f4f;border-radius:8px;padding:5px 14px;font-family:Lato,sans-serif;font-size:0.76rem;font-weight:700;cursor:pointer;';
+        delBtn.textContent='Delete';
+        delBtn.addEventListener('click',(function(id){ return function(){
+          if(confirm('Delete this post?')) db.collection('posts').doc(id).delete();
+        }; })(item.id));
+        card.appendChild(delBtn);
+      }
+      el.appendChild(card);
+    });
+  });
 }
 
-function deleteMyPost(id){
-  if(!confirm('Delete this post?')){return;}
-  db.collection('posts').doc(id).delete();
-}
-
-// ── SUBMIT POST ──────────────────────────────────────
-function updateCharCount(){
-  var val=document.getElementById('postContent').value.length;
-  var el=document.getElementById('charCount');
-  el.textContent=val+' / 1000';
-  el.className='char-counter'+(val>900?' over':val>750?' warn':'');
+// ── SUBMIT POST ───────────────────────────────────────────────────────
+function updateCount(){
+  var n=document.getElementById('postContent').value.length;
+  document.getElementById('charCount').textContent=n+' / 1000';
 }
 
 function submitPost(){
   var err=document.getElementById('postErr');
   err.style.display='none';
   var content=document.getElementById('postContent').value.trim();
-  if(!content){err.textContent='Please write something.';err.style.display='block';return;}
-  if(content.length>1000){err.textContent='Post is too long (max 1000 characters).';err.style.display='block';return;}
+  if(!content){ err.textContent='Please write something.'; err.style.display='block'; return; }
+  if(content.length>1000){ err.textContent='Too long (max 1000 characters).'; err.style.display='block'; return; }
   var btn=document.getElementById('postBtn');
-  btn.disabled=true;btn.textContent='Submitting…';
+  btn.disabled=true; btn.textContent='Submitting...';
   db.collection('posts').add({
-    userId:me.uid,
-    fullName:meData?meData.fullName:'Member',
-    content:content,
-    status:'pending',
-    likesCount:0,
-    likedBy:[],
-    createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    userId: me.uid,
+    fullName: meData?meData.fullName:(me.email||'Member'),
+    content: content,
+    status: 'pending',
+    likesCount: 0,
+    likedBy: [],
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
   }).then(function(){
     document.getElementById('postContent').value='';
-    updateCharCount();
-    closePostSheet();
-    alert('✅ Post submitted! It will appear after admin approval.');
-    btn.disabled=false;btn.textContent='Submit for Approval';
+    updateCount();
+    closeSheet();
+    btn.disabled=false; btn.textContent='Submit for Approval';
+    alert('Post submitted! It will appear after admin approval.');
   }).catch(function(e){
-    err.textContent=e.message;err.style.display='block';
-    btn.disabled=false;btn.textContent='Submit for Approval';
+    err.textContent=e.message; err.style.display='block';
+    btn.disabled=false; btn.textContent='Submit for Approval';
   });
 }
 
-// ── SHEET OPEN/CLOSE ─────────────────────────────────
-function openPostSheet(){
-  document.getElementById('postOverlay').classList.add('on');
-  document.getElementById('postSheet').classList.add('on');
+function openSheet(){
+  document.getElementById('overlay').classList.add('on');
+  document.getElementById('sheet').classList.add('on');
   document.body.style.overflow='hidden';
 }
-function closePostSheet(){
-  document.getElementById('postOverlay').classList.remove('on');
-  document.getElementById('postSheet').classList.remove('on');
+function closeSheet(){
+  document.getElementById('overlay').classList.remove('on');
+  document.getElementById('sheet').classList.remove('on');
   document.body.style.overflow='';
 }
-
-// Override nav tabs to use switchTab
-document.querySelectorAll('.nav-tab').forEach(function(t,i){
-  t.onclick=function(){switchTab(i===0?'dashboard':i===1?'feed':'mine');};
-});
-document.querySelectorAll('.nav-tab')[0].onclick=function(){window.location.href='dashboard.html';};
-document.querySelectorAll('.nav-tab')[1].onclick=function(){switchTab('feed');};
-// Add My Posts tab dynamically
-var navTabs=document.querySelector('.nav-tabs');
-var myTab=document.createElement('div');
-myTab.className='nav-tab';
-myTab.textContent='My Posts';
-myTab.onclick=function(){
-  document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.remove('active');});
-  myTab.classList.add('active');
-  document.getElementById('tabFeed').style.display='none';
-  document.getElementById('tabMyPosts').style.display='block';
-};
-navTabs.appendChild(myTab);
 </script>
 </body>
 </html>
