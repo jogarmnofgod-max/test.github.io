@@ -115,6 +115,19 @@ textarea::placeholder{color:var(--light);font-style:italic;}
   <div class="nav-tab" id="tab-mine" onclick="switchTab('mine')">My Posts</div>
 </div>
 
+<!-- Admin hides user tabs immediately before page renders -->
+<script>
+(function(){
+  // Read a cookie or sessionStorage to pre-hide tabs for admin
+  // This runs synchronously before the page is visible
+  var isAdminCached = sessionStorage.getItem('ah_isAdmin');
+  if(isAdminCached === 'true'){
+    document.getElementById('tab-confessions').style.display='none';
+    document.getElementById('tab-mine').style.display='none';
+  }
+})();
+</script>
+
 <main>
   <div id="tabFeed">
     <div id="postList">
@@ -171,11 +184,12 @@ auth.onAuthStateChanged(function(u){
         var n = meData.fullName||'';
         document.getElementById('avatarInitial').textContent = n.charAt(0).toUpperCase()||'U';
         if(meData.isAdmin){
-          // Show admin bar
+          sessionStorage.setItem('ah_isAdmin','true');
           document.getElementById('adminBar').style.display = 'flex';
-          // Hide user-only tabs
           document.getElementById('tab-confessions').style.display = 'none';
           document.getElementById('tab-mine').style.display = 'none';
+        } else {
+          sessionStorage.setItem('ah_isAdmin','false');
         }
       }
       loadFeed();
@@ -225,7 +239,12 @@ function loadFeed(){
       el.innerHTML='<div class="empty-state"><div class="empty-icon">&#x1F31F;</div><p>No posts yet. Be the first to share!</p></div>';
       return;
     }
-    posts.forEach(function(item,i){ el.appendChild(makeCard(item.id,item.d,i)); });
+    posts.forEach(function(item,i){
+      var card = makeCard(item.id,item.d,i);
+      el.appendChild(card);
+      // Load comment count immediately for each post
+      loadCommentCount(item.id);
+    });
   }, function(err){
     document.getElementById('postList').innerHTML='<div class="empty-state"><div class="empty-icon">&#x26A0;&#xFE0F;</div><p>Error: '+err.message+'</p></div>';
   });
@@ -319,6 +338,14 @@ function toggleLike(id){
       likesCount: firebase.firestore.FieldValue.increment(liked?-1:1)
     });
   });
+}
+
+// Load just the comment count (shown on the button without opening comments)
+function loadCommentCount(postId){
+  db.collection('comments').where('postId','==',postId).get().then(function(snap){
+    var cc = document.getElementById('cc-'+postId);
+    if(cc) cc.textContent = snap.size + ' comment' + (snap.size===1?'':'s');
+  }).catch(function(){});
 }
 
 // ── COMMENTS ─────────────────────────────────────────────────────────
@@ -457,8 +484,10 @@ function sendReply(cid,postId,input){
 
 // ── MY POSTS ─────────────────────────────────────────────────────────
 function loadMyPosts(){
-  if(!me) return;
-  db.collection('posts').onSnapshot(function(snap){
+  if(!me){ setTimeout(loadMyPosts, 500); return; }
+  var el=document.getElementById('myPostList');
+  el.innerHTML='<div class="empty-state"><div class="empty-icon">&#x23F3;</div><p>Loading your posts&#x2026;</p></div>';
+  db.collection('posts').get().then(function(snap){
     var posts=[];
     snap.forEach(function(d){
       var data=d.data();
@@ -467,7 +496,6 @@ function loadMyPosts(){
     posts.sort(function(a,b){
       return (b.d.createdAt?b.d.createdAt.toMillis():0)-(a.d.createdAt?a.d.createdAt.toMillis():0);
     });
-    var el=document.getElementById('myPostList');
     el.innerHTML='';
     if(!posts.length){
       el.innerHTML='<div class="empty-state"><div class="empty-icon">&#x1F4DD;</div><p>You have not posted anything yet.</p></div>';
@@ -502,6 +530,8 @@ function loadMyPosts(){
       }
       el.appendChild(card);
     });
+  }).catch(function(e){
+    el.innerHTML='<div class="empty-state"><div class="empty-icon">&#x26A0;&#xFE0F;</div><p>Could not load posts: '+e.message+'</p></div>';
   });
 }
 
