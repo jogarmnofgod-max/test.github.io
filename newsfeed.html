@@ -340,18 +340,27 @@ function toggleLike(id){
   });
 }
 
-// Load just the comment count (shown on the button without opening comments)
+// Load comment count in real-time
+var commentCountUnsubs = {};
 function loadCommentCount(postId){
-  db.collection('comments').where('postId','==',postId).get().then(function(snap){
-    var cc = document.getElementById('cc-'+postId);
-    if(cc) cc.textContent = snap.size + ' comment' + (snap.size===1?'':'s');
-  }).catch(function(){});
+  if(commentCountUnsubs[postId]) commentCountUnsubs[postId]();
+  commentCountUnsubs[postId] = db.collection('comments')
+    .where('postId','==',postId)
+    .onSnapshot(function(snap){
+      var cc = document.getElementById('cc-'+postId);
+      if(cc) cc.textContent = snap.size + ' comment' + (snap.size===1?'':'s');
+    }, function(){ });
 }
 
 // ── COMMENTS ─────────────────────────────────────────────────────────
+var commentUnsubs = {};
 function toggleComments(id){
   var cs=document.getElementById('cs-'+id);
-  if(cs.classList.contains('open')){ cs.classList.remove('open'); return; }
+  if(cs.classList.contains('open')){
+    cs.classList.remove('open');
+    if(commentUnsubs[id]){ commentUnsubs[id](); delete commentUnsubs[id]; }
+    return;
+  }
   cs.classList.add('open');
   loadComments(id);
 }
@@ -359,25 +368,27 @@ function toggleComments(id){
 function loadComments(postId){
   var el=document.getElementById('cl-'+postId);
   el.innerHTML='<p style="font-size:0.8rem;color:var(--light);padding:4px 0;">Loading...</p>';
-  db.collection('comments').where('postId','==',postId).get().then(function(snap){
-    var top=[]; var total=0;
-    snap.forEach(function(d){
-      total++;
-      var data=d.data();
-      if(!data.parentId||data.parentId==='') top.push({id:d.id,d:data});
+  if(commentUnsubs[postId]) commentUnsubs[postId]();
+  commentUnsubs[postId]=db.collection('comments')
+    .where('postId','==',postId)
+    .onSnapshot(function(snap){
+      var top=[];
+      snap.forEach(function(d){
+        var data=d.data();
+        if(!data.parentId||data.parentId==='') top.push({id:d.id,d:data});
+      });
+      top.sort(function(a,b){ return (a.d.createdAt?a.d.createdAt.toMillis():0)-(b.d.createdAt?b.d.createdAt.toMillis():0); });
+      var cc=document.getElementById('cc-'+postId);
+      if(cc) cc.textContent=snap.size+' comment'+(snap.size===1?'':'s');
+      el.innerHTML='';
+      if(!top.length){
+        el.innerHTML='<p style="font-size:0.8rem;color:var(--light);padding:4px 0;">No comments yet. Be the first!</p>';
+      } else {
+        top.forEach(function(item){ el.appendChild(makeComment(item.id,item.d,postId)); });
+      }
+    },function(e){
+      el.innerHTML='<p style="font-size:0.8rem;color:var(--err);">Could not load: '+e.message+'</p>';
     });
-    top.sort(function(a,b){ return (a.d.createdAt?a.d.createdAt.toMillis():0)-(b.d.createdAt?b.d.createdAt.toMillis():0); });
-    var cc=document.getElementById('cc-'+postId);
-    if(cc) cc.textContent=total+' comment'+(total===1?'':'s');
-    el.innerHTML='';
-    if(!top.length){
-      el.innerHTML='<p style="font-size:0.8rem;color:var(--light);padding:4px 0;">No comments yet. Be the first!</p>';
-    } else {
-      top.forEach(function(item){ el.appendChild(makeComment(item.id,item.d,postId)); });
-    }
-  }).catch(function(e){
-    el.innerHTML='<p style="font-size:0.8rem;color:var(--err);">Could not load: '+e.message+'</p>';
-  });
 }
 
 function makeComment(cid,d,postId){
@@ -483,11 +494,13 @@ function sendReply(cid,postId,input){
 }
 
 // ── MY POSTS ─────────────────────────────────────────────────────────
+var unsubMyPosts = null;
 function loadMyPosts(){
-  if(!me){ setTimeout(loadMyPosts, 500); return; }
+  if(!me) return;
   var el=document.getElementById('myPostList');
-  el.innerHTML='<div class="empty-state"><div class="empty-icon">&#x23F3;</div><p>Loading your posts&#x2026;</p></div>';
-  db.collection('posts').get().then(function(snap){
+  el.innerHTML='<div class="empty-state"><div class="empty-icon">&#x23F3;</div><p>Loading&#x2026;</p></div>';
+  if(unsubMyPosts) unsubMyPosts();
+  unsubMyPosts = db.collection('posts').onSnapshot(function(snap){
     var posts=[];
     snap.forEach(function(d){
       var data=d.data();
@@ -530,8 +543,8 @@ function loadMyPosts(){
       }
       el.appendChild(card);
     });
-  }).catch(function(e){
-    el.innerHTML='<div class="empty-state"><div class="empty-icon">&#x26A0;&#xFE0F;</div><p>Could not load posts: '+e.message+'</p></div>';
+  }, function(e){
+    el.innerHTML='<div class="empty-state"><div class="empty-icon">&#x26A0;&#xFE0F;</div><p>Could not load: '+e.message+'</p></div>';
   });
 }
 
