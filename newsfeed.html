@@ -269,6 +269,28 @@ function makeCard(id,d,idx){
 
   actions.appendChild(likeBtn);
   actions.appendChild(cmtBtn);
+
+  // Admin delete button — only shown for admin
+  if(meData && meData.isAdmin){
+    var delBtn=document.createElement('button');
+    delBtn.style.cssText='margin-left:auto;background:none;border:1px solid rgba(217,79,79,0.3);color:#d94f4f;border-radius:8px;padding:5px 12px;font-family:Lato,sans-serif;font-size:0.76rem;font-weight:700;cursor:pointer;';
+    delBtn.textContent='Delete';
+    delBtn.addEventListener('click', function(){
+      if(!confirm('Delete this post and all its comments?')) return;
+      db.collection('posts').doc(id).delete()
+        .then(function(){
+          // Also delete all comments for this post
+          db.collection('comments').where('postId','==',id).get().then(function(snap){
+            var batch=db.batch();
+            snap.forEach(function(d){ batch.delete(d.ref); });
+            return batch.commit();
+          });
+        })
+        .catch(function(e){ alert('Error: '+e.message); });
+    });
+    actions.appendChild(delBtn);
+  }
+
   card.appendChild(actions);
 
   // Comments section

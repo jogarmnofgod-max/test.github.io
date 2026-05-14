@@ -287,8 +287,8 @@ textarea:focus,select:focus{border-color:var(--sky);background:var(--white);box-
   </div>
   <div class="t-right">
     <span class="admin-badge">Pastor</span>
-    <button onclick="window.location.href='newsfeed.html'" style="background:none;border:1.5px solid rgba(255,255,255,0.35);border-radius:8px;padding:5px 11px;font-family:Lato,sans-serif;font-size:0.74rem;font-weight:700;color:white;cursor:pointer;margin-left:6px;">📰</button>
     <button class="logout-btn" onclick="doLogout()">Out</button>
+    <button onclick="window.location.href='newsfeed.html'" style="background:none;border:1.5px solid rgba(255,255,255,0.35);border-radius:8px;padding:5px 11px;font-family:Lato,sans-serif;font-size:0.74rem;font-weight:700;color:white;cursor:pointer;margin-left:6px;">📰 Newsfeed</button>
   </div>
 </div>
 
@@ -926,10 +926,14 @@ function renderPosts(){
         '<div style="display:flex;gap:8px;">'+
           '<button onclick="approvePost(\''+item.id+'\')" style="flex:1;padding:10px;background:var(--grad);color:white;border:none;border-radius:10px;font-family:Lato,sans-serif;font-size:0.84rem;font-weight:700;cursor:pointer;">✅ Approve</button>'+
           '<button onclick="openDeclineSheet(\''+item.id+'\')" style="flex:1;padding:10px;background:rgba(217,79,79,0.1);color:#d94f4f;border:1px solid rgba(217,79,79,0.25);border-radius:10px;font-family:Lato,sans-serif;font-size:0.84rem;font-weight:700;cursor:pointer;">❌ Decline</button>'+
+          '<button onclick="deletePost(\''+item.id+'\')" style="padding:10px 14px;background:none;color:#d94f4f;border:1px solid rgba(217,79,79,0.25);border-radius:10px;font-family:Lato,sans-serif;font-size:0.84rem;font-weight:700;cursor:pointer;">🗑</button>'+
         '</div>'
-      : d.status==='declined' && d.declineReason ?
-        '<div style="padding:8px 12px;background:#fdecea;border-radius:8px;font-size:0.8rem;color:#d94f4f;"><strong>Reason:</strong> '+d.declineReason+'</div>'
-      : '<div style="font-size:0.8rem;color:var(--ok);font-weight:600;">✅ Approved — visible on Newsfeed</div>')+
+      : '<div style="display:flex;align-items:center;justify-content:space-between;">'+
+          (d.status==='declined' && d.declineReason ?
+            '<div style="padding:8px 12px;background:#fdecea;border-radius:8px;font-size:0.8rem;color:#d94f4f;flex:1;margin-right:8px;"><strong>Reason:</strong> '+d.declineReason+'</div>'
+          : '<div style="font-size:0.8rem;color:var(--ok);font-weight:600;">✅ Approved — visible on Newsfeed</div>')+
+          '<button onclick="deletePost(\''+item.id+'\')" style="padding:8px 12px;background:none;color:#d94f4f;border:1px solid rgba(217,79,79,0.25);border-radius:8px;font-family:Lato,sans-serif;font-size:0.8rem;font-weight:700;cursor:pointer;flex-shrink:0;">🗑 Delete</button>'+
+        '</div>')+
     '';
     el.appendChild(card);
   });
@@ -944,6 +948,21 @@ function getAdminInitials(name){
 
 function approvePost(id){
   db.collection('posts').doc(id).update({status:'approved'})
+    .catch(function(e){ alert('Error: '+e.message); });
+}
+
+function deletePost(id){
+  if(!confirm('Delete this post and all its comments? This cannot be undone.')) return;
+  // Delete all comments first then the post
+  db.collection('comments').where('postId','==',id).get()
+    .then(function(snap){
+      var batch=db.batch();
+      snap.forEach(function(d){ batch.delete(d.ref); });
+      return batch.commit();
+    })
+    .then(function(){
+      return db.collection('posts').doc(id).delete();
+    })
     .catch(function(e){ alert('Error: '+e.message); });
 }
 
