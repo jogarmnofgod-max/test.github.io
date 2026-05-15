@@ -21,6 +21,7 @@
   --sidebar:#0c1e30;
 }
 @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
 @keyframes slideUp{from{opacity:0;transform:translateY(100%)}to{opacity:1;transform:translateY(0)}}
 
 html,body{min-height:100vh;background:var(--ghost);font-family:'Lato',sans-serif;color:var(--ink);}
@@ -420,7 +421,33 @@ textarea:focus,select:focus{border-color:var(--sky);background:var(--white);box-
     </div>
     <div class="reply-section">
       <span class="field-label">Pastoral Response</span>
+      <!-- Msg type toggle -->
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <button id="adm-toggleText" onclick="admSetMsgType('text')" style="flex:1;padding:9px;border-radius:10px;border:1.5px solid var(--blue);background:var(--pale);color:var(--blue);font-family:Lato,sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer;">✏️ Text</button>
+        <button id="adm-toggleVoice" onclick="admSetMsgType('voice')" style="flex:1;padding:9px;border-radius:10px;border:1.5px solid var(--border);background:none;color:var(--light);font-family:Lato,sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer;">🎤 Voice</button>
+      </div>
       <textarea id="replyText" placeholder="Write your response with care and grace…"></textarea>
+      <!-- Voice recorder UI for admin -->
+      <div id="adm-voiceUI" style="display:none;margin-bottom:10px;">
+        <div id="adm-voiceIdle" style="display:flex;align-items:center;gap:10px;">
+          <button onclick="admStartRec()" style="background:var(--grad);color:white;border:none;border-radius:10px;padding:10px 18px;font-family:Lato,sans-serif;font-size:0.88rem;font-weight:700;cursor:pointer;">🎤 Start Recording</button>
+          <span style="font-size:0.78rem;color:var(--ink-light);">Max 2 minutes</span>
+        </div>
+        <div id="adm-voiceRec" style="display:none;align-items:center;gap:10px;background:#fdecea;padding:10px 14px;border-radius:10px;">
+          <div style="width:10px;height:10px;border-radius:50%;background:#d94f4f;animation:blink 1s infinite;flex-shrink:0;"></div>
+          <span style="font-size:0.88rem;font-weight:700;color:#d94f4f;">Recording</span>
+          <span id="adm-recTimer" style="font-size:0.88rem;font-weight:700;">0:00</span>
+          <span style="font-size:0.78rem;color:var(--ink-light);">/ 2:00</span>
+          <button onclick="admStopRec()" style="margin-left:auto;background:#d94f4f;color:white;border:none;border-radius:8px;padding:7px 14px;font-family:Lato,sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer;">■ Stop</button>
+        </div>
+        <div id="adm-voicePreview" style="display:none;flex-direction:column;gap:8px;">
+          <audio id="adm-previewAudio" controls style="width:100%;border-radius:8px;"></audio>
+          <div style="display:flex;gap:8px;">
+            <button onclick="admCancelVoice()" style="flex:1;padding:10px;background:none;border:1.5px solid var(--border);border-radius:10px;font-family:Lato,sans-serif;font-size:0.84rem;font-weight:600;color:var(--ink-light);cursor:pointer;">✕ Cancel</button>
+            <button id="adm-sendVoiceBtn" onclick="admSendVoice()" style="flex:2;padding:10px;background:var(--grad);color:white;border:none;border-radius:10px;font-family:Lato,sans-serif;font-size:0.84rem;font-weight:700;cursor:pointer;">🎤 Send Voice</button>
+          </div>
+        </div>
+      </div>
       <div class="status-row">
         <span class="field-label">Status:</span>
         <select id="statusSelect">
@@ -430,7 +457,7 @@ textarea:focus,select:focus{border-color:var(--sky);background:var(--white);box-
           <option value="closed">✓ Closed</option>
         </select>
       </div>
-      <button class="reply-btn" onclick="sendAdminReply()">Send Response</button>
+      <button class="reply-btn" id="adm-sendTextBtn" onclick="sendAdminReply()">Send Response</button>
     </div>
   </div>
 </div>
@@ -672,10 +699,16 @@ function openThread(id,data){
         var senderLabel=isAdmin?(m.senderName||(adminRole==='pastora'?'Pastora':'Pastor')):'Member';
         var div=document.createElement('div');
         div.className='message '+(isAdmin?'admin':'user');
-        var sEl=document.createElement('div');sEl.className='msg-sender';sEl.textContent=senderLabel;
-        var bEl=document.createElement('div');bEl.className='msg-bubble';bEl.textContent=m.text;
-        var tEl=document.createElement('div');tEl.className='msg-time';tEl.textContent=fmtTime(m.createdAt);
-        div.appendChild(sEl);div.appendChild(bEl);div.appendChild(tEl);
+        var sEl=document.createElement('div'); sEl.className='msg-sender'; sEl.textContent=senderLabel;
+        div.appendChild(sEl);
+        if(m.type==='voice' && m.audioUrl){
+          div.appendChild(buildAudioBubble(m, isAdmin));
+        } else {
+          var bEl=document.createElement('div'); bEl.className='msg-bubble'; bEl.textContent=m.text;
+          div.appendChild(bEl);
+        }
+        var tEl=document.createElement('div'); tEl.className='msg-time'; tEl.textContent=fmtTime(m.createdAt);
+        div.appendChild(tEl);
         thread.appendChild(div);
       });
       var body=document.getElementById('modalScrollBody');
@@ -994,6 +1027,137 @@ function confirmDecline(){
 }
 
 // Call loadPosts on init
+// ═══════════════════════════════════════════
+// VOICE MESSAGE — ADMIN
+// ═══════════════════════════════════════════
+var CLOUDINARY_CLOUD  = 'dphwv5k78';
+var CLOUDINARY_PRESET = 'amazing-hope-confessions-voice-storage';
+var admMediaRecorder  = null;
+var admAudioChunks    = [];
+var admTimerInterval  = null;
+var admSeconds        = 0;
+var admAudioBlob      = null;
+
+function admSetMsgType(type){
+  var isVoice = type === 'voice';
+  document.getElementById('adm-toggleText').style.cssText  = 'flex:1;padding:9px;border-radius:10px;border:1.5px solid '+(isVoice?'var(--border)':'var(--blue)')+';background:'+(isVoice?'none':'var(--pale)')+';color:'+(isVoice?'var(--ink-light)':'var(--blue)')+';font-family:Lato,sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer;';
+  document.getElementById('adm-toggleVoice').style.cssText = 'flex:1;padding:9px;border-radius:10px;border:1.5px solid '+(isVoice?'var(--blue)':'var(--border)')+';background:'+(isVoice?'var(--pale)':'none')+';color:'+(isVoice?'var(--blue)':'var(--ink-light)')+';font-family:Lato,sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer;';
+  document.getElementById('replyText').style.display       = isVoice ? 'none' : 'block';
+  document.getElementById('adm-voiceUI').style.display     = isVoice ? 'block' : 'none';
+  document.getElementById('adm-sendTextBtn').style.display = isVoice ? 'none' : 'block';
+  if(isVoice){
+    admAudioBlob = null;
+    document.getElementById('adm-voiceIdle').style.display   = 'flex';
+    document.getElementById('adm-voiceRec').style.display    = 'none';
+    document.getElementById('adm-voicePreview').style.display= 'none';
+  }
+}
+
+function admStartRec(){
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    alert('Voice recording not supported in this browser.'); return;
+  }
+  navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
+    admAudioChunks = [];
+    var options = {mimeType:'audio/webm'};
+    try { admMediaRecorder = new MediaRecorder(stream, options); }
+    catch(e){ admMediaRecorder = new MediaRecorder(stream); }
+
+    admMediaRecorder.ondataavailable = function(e){
+      if(e.data && e.data.size > 0) admAudioChunks.push(e.data);
+    };
+    admMediaRecorder.onstop = function(){
+      admAudioBlob = new Blob(admAudioChunks, {type: admMediaRecorder.mimeType||'audio/webm'});
+      document.getElementById('adm-previewAudio').src = URL.createObjectURL(admAudioBlob);
+      document.getElementById('adm-voiceRec').style.display     = 'none';
+      document.getElementById('adm-voicePreview').style.display = 'flex';
+      stream.getTracks().forEach(function(t){ t.stop(); });
+    };
+
+    admMediaRecorder.start(100);
+    admSeconds = 0;
+    document.getElementById('adm-recTimer').textContent = '0:00';
+    document.getElementById('adm-voiceIdle').style.display = 'none';
+    document.getElementById('adm-voiceRec').style.display  = 'flex';
+
+    admTimerInterval = setInterval(function(){
+      admSeconds++;
+      var m=Math.floor(admSeconds/60), s=admSeconds%60;
+      document.getElementById('adm-recTimer').textContent = m+':'+(s<10?'0':'')+s;
+      if(admSeconds >= 120) admStopRec();
+    }, 1000);
+  }).catch(function(e){ alert('Microphone error: '+e.message); });
+}
+
+function admStopRec(){
+  clearInterval(admTimerInterval);
+  if(admMediaRecorder && admMediaRecorder.state !== 'inactive') admMediaRecorder.stop();
+}
+
+function admCancelVoice(){
+  admAudioBlob = null;
+  document.getElementById('adm-voiceIdle').style.display    = 'flex';
+  document.getElementById('adm-voicePreview').style.display = 'none';
+  document.getElementById('adm-previewAudio').src = '';
+}
+
+function admSendVoice(){
+  if(!admAudioBlob){ alert('No recording found.'); return; }
+  var btn = document.getElementById('adm-sendVoiceBtn');
+  btn.disabled = true; btn.textContent = 'Uploading…';
+  var senderName = adminRole==='pastora' ? 'Pastora' : 'Pastor';
+
+  var formData = new FormData();
+  var ext = admAudioBlob.type.includes('ogg') ? 'ogg' : 'webm';
+  formData.append('file', admAudioBlob, 'voice.'+ext);
+  formData.append('upload_preset', CLOUDINARY_PRESET);
+  formData.append('resource_type', 'video');
+
+  fetch('https://api.cloudinary.com/v1_1/'+CLOUDINARY_CLOUD+'/video/upload', {
+    method:'POST', body:formData
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    if(!data.secure_url) throw new Error(data.error?data.error.message:'Upload failed');
+    var status = document.getElementById('statusSelect').value;
+    return db.collection('messages').add({
+      confessionId: currentConfId,
+      sender:       'admin',
+      senderName:   senderName,
+      type:         'voice',
+      audioUrl:     data.secure_url,
+      duration:     Math.round(data.duration || admSeconds),
+      createdAt:    firebase.firestore.FieldValue.serverTimestamp()
+    }).then(function(){
+      return db.collection('confessions').doc(currentConfId).update({
+        status:'replied', hasNewReply:true, hasAdminNew:false,
+        lastActivityAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    });
+  })
+  .then(function(){
+    admCancelVoice();
+    admSetMsgType('text');
+    btn.disabled=false; btn.textContent='🎤 Send Voice';
+  })
+  .catch(function(e){
+    alert('Error: '+e.message);
+    btn.disabled=false; btn.textContent='🎤 Send Voice';
+  });
+}
+
+// Audio bubble builder
+function buildAudioBubble(m, isAdmin){
+  var wrap=document.createElement('div');
+  wrap.style.cssText='display:flex;align-items:center;gap:8px;background:rgba(26,184,232,0.08);padding:10px 14px;border-radius:12px;max-width:90%;border:1px solid var(--border);';
+  var icon=document.createElement('span'); icon.textContent='🎤'; icon.style.fontSize='1.1rem';
+  var audio=document.createElement('audio');
+  audio.src=m.audioUrl; audio.controls=true;
+  audio.style.cssText='flex:1;height:36px;min-width:0;';
+  wrap.appendChild(icon); wrap.appendChild(audio);
+  return wrap;
+}
+
 function doLogout(){auth.signOut().then(function(){window.location.href='index.html';});}
 </script>
 <!-- DECLINE POST SHEET -->
