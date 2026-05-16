@@ -1060,11 +1060,15 @@ function admStartRec(){
   navigator.mediaDevices.getUserMedia({
     audio:{
       channelCount:1,
-      sampleRate:44100,
+      sampleRate:48000,
       sampleSize:16,
       echoCancellation:true,
       noiseSuppression:true,
-      autoGainControl:true
+      autoGainControl:true,
+      googEchoCancellation:true,
+      googNoiseSuppression:true,
+      googHighpassFilter:true,
+      googTypingNoiseDetection:true
     }
   }).then(function(stream){
     admAudioChunks = [];
@@ -1073,7 +1077,7 @@ function admStartRec(){
     for(var i=0;i<types.length;i++){
       if(MediaRecorder.isTypeSupported(types[i])){ mimeType=types[i]; break; }
     }
-    var options = mimeType ? {mimeType:mimeType, audioBitsPerSecond:128000} : {};
+    var options = mimeType ? {mimeType:mimeType, audioBitsPerSecond:256000} : {};
     try { admMediaRecorder = new MediaRecorder(stream, options); }
     catch(e){ admMediaRecorder = new MediaRecorder(stream); }
 

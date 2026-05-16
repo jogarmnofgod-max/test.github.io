@@ -403,6 +403,20 @@ function makeComment(cid,d,postId){
   var rb=document.createElement('button'); rb.className='reply-btn-sm'; rb.textContent='Reply';
   rb.addEventListener('click',function(){ toggleReplyInput(cid); });
   bub.appendChild(nm); bub.appendChild(tx); bub.appendChild(tm); bub.appendChild(rb);
+
+  // Admin delete button for comment
+  if(meData && meData.isAdmin){
+    var delBtn=document.createElement('button');
+    delBtn.textContent='Delete';
+    delBtn.style.cssText='background:none;border:none;color:#d94f4f;font-size:0.72rem;font-weight:700;cursor:pointer;padding:2px 0;margin-top:3px;font-family:Lato,sans-serif;display:block;';
+    delBtn.addEventListener('click',function(){
+      if(!confirm('Delete this comment?')) return;
+      db.collection('comments').doc(cid).delete()
+        .catch(function(e){ alert('Error: '+e.message); });
+    });
+    bub.appendChild(delBtn);
+  }
+
   item.appendChild(av); item.appendChild(bub);
   wrap.appendChild(item);
 
