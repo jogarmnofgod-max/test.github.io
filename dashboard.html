@@ -339,7 +339,7 @@ textarea::placeholder{color:var(--light);font-style:italic;}
         <!-- Voice recorder UI -->
         <div id="voiceUI" style="display:none;margin-bottom:10px;">
           <div id="voiceIdle" style="display:flex;align-items:center;gap:10px;">
-            <button id="startRecBtn" onclick="startRecording()" style="background:var(--grad);color:white;border:none;border-radius:10px;padding:10px 18px;font-family:Lato,sans-serif;font-size:0.88rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;">🎤 Start Recording</button>
+            <button id="startRecBtn" onclick="startRecording()" style="background:var(--grad);color:white;border:none;border-radius:10px;padding:10px 18px;font-family:Lato,sans-serif;font-size:0.88rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;">Start Recording</button>
             <span style="font-size:0.78rem;color:var(--light);">Max 2 minutes</span>
           </div>
           <div id="voiceRecording" style="display:none;align-items:center;gap:10px;background:#fdecea;padding:10px 14px;border-radius:10px;">
@@ -353,13 +353,13 @@ textarea::placeholder{color:var(--light);font-style:italic;}
             <audio id="previewAudio" controls style="width:100%;border-radius:8px;"></audio>
             <div style="display:flex;gap:8px;">
               <button onclick="cancelVoice()" style="flex:1;padding:10px;background:none;border:1.5px solid var(--border);border-radius:10px;font-family:Lato,sans-serif;font-size:0.84rem;font-weight:600;color:var(--light);cursor:pointer;">✕ Cancel</button>
-              <button id="sendVoiceBtn" onclick="sendVoiceMessage()" style="flex:2;padding:10px;background:var(--grad);color:white;border:none;border-radius:10px;font-family:Lato,sans-serif;font-size:0.84rem;font-weight:700;cursor:pointer;">🎤 Send Voice Message</button>
+              <button id="sendVoiceBtn" onclick="sendVoiceMessage()" style="flex:2;padding:10px;background:var(--grad);color:white;border:none;border-radius:10px;font-family:Lato,sans-serif;font-size:0.84rem;font-weight:700;cursor:pointer;">Send Voice Message</button>
             </div>
           </div>
         </div>
         <div id="msgTypeToggle" style="display:flex;gap:8px;margin-bottom:10px;">
-          <button id="toggleText" onclick="setMsgType('text')" class="id-btn on" style="flex:1;">✏️ Text</button>
-          <button id="toggleVoice" onclick="setMsgType('voice')" class="id-btn" style="flex:1;display:none;" id="voiceToggleBtn">🎤 Voice</button>
+          <button id="toggleText" onclick="setMsgType('text')" class="id-btn on" style="flex:1;">Text</button>
+          <button id="toggleVoice" onclick="setMsgType('voice')" class="id-btn" style="flex:1;display:none;" id="voiceToggleBtn">Voice</button>
         </div>
         <button class="pri-btn" onclick="doReply()">Send Reply</button>
       </div>
@@ -829,9 +829,24 @@ function startRecording(){
     alert('Voice recording is not supported in this browser.');
     return;
   }
-  navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
+  navigator.mediaDevices.getUserMedia({
+    audio:{
+      channelCount:1,
+      sampleRate:44100,
+      sampleSize:16,
+      echoCancellation:true,
+      noiseSuppression:true,
+      autoGainControl:true
+    }
+  }).then(function(stream){
     audioChunks = [];
-    var options = {mimeType:'audio/webm'};
+    // Pick best available format for quality
+    var mimeType = '';
+    var types = ['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/mp4'];
+    for(var i=0;i<types.length;i++){
+      if(MediaRecorder.isTypeSupported(types[i])){ mimeType=types[i]; break; }
+    }
+    var options = mimeType ? {mimeType:mimeType, audioBitsPerSecond:128000} : {};
     try { mediaRecorder = new MediaRecorder(stream, options); }
     catch(e){ mediaRecorder = new MediaRecorder(stream); }
 
@@ -915,26 +930,28 @@ function sendVoiceMessage(){
   .then(function(){
     cancelVoice();
     setMsgType('text');
-    btn.disabled = false; btn.textContent = '🎤 Send Voice Message';
+    btn.disabled = false; btn.textContent = 'Send Voice Message';
   })
   .catch(function(e){
     alert('Error: ' + e.message);
-    btn.disabled = false; btn.textContent = '🎤 Send Voice Message';
+    btn.disabled = false; btn.textContent = 'Send Voice Message';
   });
 }
 
 // Build audio bubble for rendering
 function buildAudioBubble(m, isAdmin){
   var wrap = document.createElement('div');
-  wrap.style.cssText = 'display:flex;align-items:center;gap:8px;background:'+(isAdmin?'rgba(26,184,232,0.1)':'rgba(255,255,255,0.15)')+';padding:10px 14px;border-radius:12px;max-width:85%;';
-  var icon = document.createElement('span'); icon.textContent = '🎤'; icon.style.fontSize='1.1rem';
+  wrap.style.cssText = 'display:flex;flex-direction:column;gap:6px;background:'+(isAdmin?'var(--pale)':'rgba(255,255,255,0.15)')+';padding:10px 14px;border-radius:12px;max-width:85%;border:1px solid var(--border);';
+  var durSecs = m.duration || 0;
+  var durStr  = Math.floor(durSecs/60)+':'+(durSecs%60<10?'0':'')+durSecs%60;
+  var label = document.createElement('div');
+  label.style.cssText = 'font-size:0.72rem;font-weight:700;color:var(--light);';
+  label.textContent = 'Voice message · ' + durStr;
   var audio = document.createElement('audio');
   audio.src = m.audioUrl; audio.controls = true;
-  audio.style.cssText = 'flex:1;height:36px;min-width:0;';
-  var dur = document.createElement('span');
-  dur.textContent = m.duration ? (Math.floor(m.duration/60)+':'+(m.duration%60<10?'0':'')+m.duration%60) : '';
-  dur.style.cssText = 'font-size:0.72rem;color:'+(isAdmin?'var(--mid)':'rgba(255,255,255,0.8)')+';white-space:nowrap;';
-  wrap.appendChild(icon); wrap.appendChild(audio); wrap.appendChild(dur);
+  audio.style.cssText = 'width:100%;height:36px;';
+  wrap.appendChild(label);
+  wrap.appendChild(audio);
   return wrap;
 }
 
